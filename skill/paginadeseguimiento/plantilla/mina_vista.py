@@ -11,7 +11,7 @@ CSS = r'''
 #minaV{margin-bottom:12px;padding:10px}#minaV #minaS{width:100%;height:auto;display:block;border-radius:10px;user-select:none}
 #minaV .obj,#minaV .gema,#minaV .carro,#minaV .tarea{cursor:pointer}#minaV .obj:focus,#minaV .gema:focus,#minaV .tarea:focus{outline:none}
 #minaV .obj:hover .cristales,#minaV .obj:focus .cristales{filter:brightness(1.25)}#minaV .gema:hover{filter:brightness(1.3)}
-#minaV .escoba{cursor:pointer}.mConf{position:fixed;top:0;right:0;bottom:0;left:0;z-index:10002;display:flex;align-items:center;justify-content:center;background:#0b0d1f99;padding:16px}.mConf .mModal{width:min(340px,100%);text-align:center}.mConf .mModal p{margin:0 0 14px;color:var(--mut);font-size:14px;line-height:1.4}.mConf .bot{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.mConf button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:9px 16px;font-size:15px;font-weight:600;cursor:pointer;min-width:120px}.mConf button.si{background:var(--a);border-color:var(--a);color:#fff}#minaV .escoba:hover circle,#minaV .escoba:focus circle{fill:#ffe9a8}#minaV .rn,#minaV .rp{paint-order:stroke;stroke:#1d120b;stroke-width:3px;stroke-linejoin:round}#minaV .tarea:hover .rocaF{stroke:#fff}#minaV .rocaS{transition:transform .8s ease}#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
+#minaV .escoba,#minaV .drvO{cursor:pointer}#minaV .drvO:hover circle{fill:#1557b0}.mConf{position:fixed;top:0;right:0;bottom:0;left:0;z-index:10002;display:flex;align-items:center;justify-content:center;background:#0b0d1f99;padding:16px}.mConf .mModal{width:min(340px,100%);text-align:center}.mConf .mModal p{margin:0 0 14px;color:var(--mut);font-size:14px;line-height:1.4}.mConf .bot{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.mConf button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:9px 16px;font-size:15px;font-weight:600;cursor:pointer;min-width:120px}.mConf button.si{background:var(--a);border-color:var(--a);color:#fff}#minaV .escoba:hover circle,#minaV .escoba:focus circle{fill:#ffe9a8}#minaV .rn,#minaV .rp{paint-order:stroke;stroke:#1d120b;stroke-width:3px;stroke-linejoin:round}#minaV .tarea:hover .rocaF{stroke:#fff}#minaV .rocaS{transition:transform .8s ease}#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
 #minaV .pico{transform-box:fill-box;transform-origin:0% 100%;animation:mPico .7s ease-in-out infinite}
 #minaV .cuerpoP{animation:mBote .7s ease-in-out infinite}
 #minaV .quieto .pico{animation:none;transform:rotate(-20deg)}#minaV .quieto .cuerpoP{animation:none}
@@ -41,7 +41,7 @@ CSS = r'''
 .minaBar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 8px}.minaBar b{font-size:14px}
 .minaBar button,.mModal button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:5px 12px;font-size:13px;cursor:pointer;font-weight:600}
 .minaBar button:hover,.mModal button:hover{border-color:var(--a);color:var(--a)}
-.minaMapa{position:relative;min-height:0}#minaV .mDrv{position:absolute;left:10px;bottom:10px;z-index:3;padding:7px 14px;border-radius:9px;background:#1a73e8;color:#fff;font-weight:700;font-size:13.5px;text-decoration:none;box-shadow:0 2px 6px #0006}#minaV .mDrv[hidden]{display:none}
+.minaMapa{position:relative;min-height:0}
 #minaModal{position:absolute;top:0;right:0;bottom:0;left:0;display:flex;align-items:center;justify-content:center;background:#0b0d1f99;border-radius:10px;padding:12px;z-index:5}
 #minaModal[hidden]{display:none}
 .mModal{background:var(--card);color:var(--ink);border-radius:14px;box-shadow:0 12px 40px #0008;padding:16px 18px;width:min(460px,100%);max-height:100%;overflow:auto}
@@ -74,7 +74,7 @@ CSS = r'''
 #minaDet li small{grid-column:2/4;color:var(--mut);margin-top:-2px}#minaDet .meta{color:var(--mut);font-size:12px;margin:2px 0 6px}
 '''
 
-HTML = r'''<section id="minaV" class="card fija hide"><div class="minaBar"><b>⛏ Mina del avance</b><button id="minaFS" type="button" aria-pressed="false">⛶ Pantalla completa</button></div><div class="minaMapa" id="minaMapa"><button id="minaFSsalir" class="mFsSalir" type="button" title="Salir de pantalla completa" aria-label="Salir de pantalla completa"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button><a id="minaDrv" class="mDrv" hidden target="_blank" rel="noopener">▶ Ver video en Drive</a><svg id="minaS" role="img" aria-label="Mina del avance"></svg><div id="minaModal" hidden role="dialog" aria-modal="true" aria-labelledby="mTit"><div class="mModal" id="mCont"></div></div></div><div id="minaDet"><p class="vacio">Toque un objetivo, una tarea o el carro minero para ver el detalle.</p></div></section>'''
+HTML = r'''<section id="minaV" class="card fija hide"><div class="minaBar"><b>⛏ Mina del avance</b><button id="minaFS" type="button" aria-pressed="false">⛶ Pantalla completa</button></div><div class="minaMapa" id="minaMapa"><button id="minaFSsalir" class="mFsSalir" type="button" title="Salir de pantalla completa" aria-label="Salir de pantalla completa"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button><svg id="minaS" role="img" aria-label="Mina del avance"></svg><div id="minaModal" hidden role="dialog" aria-modal="true" aria-labelledby="mTit"><div class="mModal" id="mCont"></div></div></div><div id="minaDet"><p class="vacio">Toque un objetivo, una tarea o el carro minero para ver el detalle.</p></div></section>'''
 
 JS = r'''
 // ---- vista «Mina»: el pollito cava tarea por tarea hacia cada objetivo; lo terminado va al carro
@@ -209,7 +209,10 @@ function minaArmar(E) {
     sv('path', {d: 'M-1 0 L3 4 L-3 10 L-9 4 Z', fill: '#e0a526', stroke: '#8a5a2b', 'stroke-width': 1.2, 'stroke-linejoin': 'round'}, esc);
     sv('path', {d: 'M-6 7 L-4 5 M-3 8 L-1 6', stroke: '#8a5a2b', 'stroke-width': 1}, esc);
     sv('title', {}, esc).textContent = 'Limpiar del mapa';
-    MINA.objs.push({g, cr, hueco, logrado, aro, nom, pct, tt, col, caja, esc});
+    const drv = sv('g', {class: 'drvO hide', role: 'button', tabindex: 0, transform: 'translate(-56 0)'}, g); drv.dataset.l = e.L;
+    sv('circle', {r: 13, fill: '#1a73e8', stroke: '#fff', 'stroke-width': 2}, drv); sv('path', {d: 'M-4 -6 L7 0 L-4 6 Z', fill: '#fff'}, drv);
+    sv('title', {}, drv).textContent = 'Ver video en Drive';
+    MINA.objs.push({g, cr, hueco, logrado, aro, nom, pct, tt, col, caja, esc, drv});
   });
   const cg = sv('g', {class: 'carro', tabindex: 0, role: 'button', transform: 'translate(430 96)'}, s);
   MINA.gemas = sv('g', {}, cg);
@@ -310,22 +313,29 @@ function minaMedidor(k, p, txt) {
 }
 function mina(E) {
   MINA.E = E; if (MINA.key !== minaClave(E)) minaArmar(E);
-  { const D = (E.checklist && E.checklist.drive) || {}, k = Object.keys(D).filter(x => D[x] && D[x].url).sort((x, y) => (D[y].t || 0) - (D[x].t || 0))[0], md = $('#minaDrv');
-    md.hidden = !k; if (k) { md.href = D[k].url; md.textContent = '▶ Ver video en Drive · ' + k.toUpperCase(); } }
   MINA.tot.tv.textContent = E.total + '%'; MINA.tot.cr.setAttribute('width', 148 * Math.max(0, Math.min(100, E.total)) / 100);
   const S = E.sis || {}, cpu = S.total || 0, ram = S.mem ? 100 * S.mem[0] / S.mem[1] : 0;
   minaMedidor('cpu', cpu, cpu.toFixed(0) + '%'); minaMedidor('ram', ram, ram.toFixed(0) + '%');
   const fins = [];
   E.idiomas.forEach((e, i) => {
     const o = MINA.objs[i], G = MINA.gal[i], f = finM(e), c = cavado(e), largo = Math.round(1000 * c.f);
-    G.fondo.setAttribute('stroke-dasharray', `${largo} 1000`); G.luz.setAttribute('stroke-dasharray', `${largo} 1000`);
+    // túnel abierto = lo cavado en orden + todo tramo que ya llegó al 100 % (aunque esté más adelante; 14/11)
+    { const k = Math.max(1, e.pasos.length), iv = [[0, largo]];
+      e.pasos.forEach((p, j) => { if ((f ? 100 : p[1]) >= 100) iv.push([1000 * j / k, 1000 * (j + 1) / k]); });
+      iv.sort((x, y) => x[0] - y[0]); const m = [];
+      iv.forEach(([x, y]) => { if (y <= x) return; if (m.length && x <= m[m.length - 1][1] + .5) m[m.length - 1][1] = Math.max(m[m.length - 1][1], y); else m.push([x, y]); });
+      const d = []; let pos = 0;   // patrón trazo/hueco que empieza con trazo: trazo 0 si el primer tramo abierto no arranca en 0
+      m.forEach(([x, y], n) => { if (n === 0 && x > 0) d.push(0, x); else if (n > 0) d.push(x - pos); d.push(y - x); pos = y; });
+      if (!m.length) d.push(0); d.push(1000 + 1000 - pos);
+      const da = d.map(x => +x.toFixed(2)).join(' ');
+      G.fondo.setAttribute('stroke-dasharray', da); G.luz.setAttribute('stroke-dasharray', da); }
     e.pasos.forEach((p, j) => { const T = G.tareas[j]; if (!T) return; const v = f ? 100 : p[1];
       const Ln = minaLineas(nomTarea(p[0]), Math.max(8, Math.floor((T.w - 8) / 5.6))), ex = 12 * (Ln.length - 1), y0 = T.arriba ? T.ty - ex : T.ty;
       minaTexto(T.tn, Ln, T.mx, y0 + 12, 12); T.ex = ex; T.r.setAttribute('y', y0); T.r.setAttribute('height', 30 + ex);
       T.tp.setAttribute('y', y0 + 25 + ex); T.tb.setAttribute('y', y0 + 27 + ex); T.tb.previousElementSibling.setAttribute('y', y0 + 27 + ex);
       T.tp.textContent = (v >= 100 ? '✔ ' : j === c.act ? '⛏ ' : '') + v + '%';
       T.tb.setAttribute('width', (T.w - 8) * v / 100);
-      T.cam.classList.toggle('hide', !(v >= 100 && c.act >= 0 && j > c.act));   // terminada fuera de orden: cámara ya excavada
+      T.cam.classList.add('hide');   // los tramos al 100 % fuera de orden ya se ven despejados en el túnel
       T.g.classList.toggle('ahora', j === c.act); T.et.setAttribute('transform', j === c.act && T.arriba ? `translate(0 ${72 + (T.ex || 0)})` : '');   // el rótulo de la tarea en curso va debajo: arriba está el pollito
       T.tt.textContent = `${p[0]}: ${v}%${p[2] ? ' · ' + p[2] : ''}`;
       const roca = v < 100; T.et.style.display = roca ? 'none' : ''; T.ro.style.display = 'none'; T.rn.style.display = roca ? '' : 'none';
@@ -336,7 +346,7 @@ function mina(E) {
         minaTexto(T.rn, Lr, T.mx, ar ? T.my - 24 - 11 * (Lr.length - 1) : T.my + 32, 11); } });   // el texto va centrado bajo (o sobre) su roca
     o.aro.setAttribute('stroke-dasharray', `${f ? 100 : e.pct} 100`); o.cr.classList.toggle('hide', f); o.hueco.classList.toggle('hide', !f);
     { const Ln = minaLineas(e.nombre, 20), ex = 14 * (Ln.length - 1); minaTexto(o.nom, Ln, 0, -67 - ex, 14); o.caja.setAttribute('y', -84 - ex); o.caja.setAttribute('height', 40 + ex); } o.pct.textContent = f ? '✔ en el carro' : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
-    o.esc.classList.toggle('hide', !f);
+    o.esc.classList.toggle('hide', !f); o.drv.classList.toggle('hide', !e.drive); o.drv.dataset.u = e.drive || '';
     o.tt.textContent = `${e.nombre}: ${e.pct}%`; o.g.classList.toggle('sel', MINA.sel === e.L);
     if (f) fins.push({e, col: o.col});
   });
@@ -468,6 +478,10 @@ document.addEventListener('click', ev => {
   const e = MINA.E && MINA.E.idiomas.find(x => x.L === b.dataset.l); if (!e) return;
   minaConfirmar(e.nombre, () => fetch('limpiar', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id: e.L})})
     .then(r => { if (!r.ok) return r.text().then(t => minaAviso('No se pudo limpiar: ' + t)); b.classList.add('hide'); }).catch(() => minaAviso('No se pudo limpiar: sin conexión')));
+}, true);
+document.addEventListener('click', ev => {   // botón de Drive del objetivo: abre el video en otra pestaña
+  const b = ev.target.closest && ev.target.closest('#minaV .drvO'); if (!b || !b.dataset.u) return;
+  ev.preventDefault(); ev.stopPropagation(); window.open(b.dataset.u, '_blank', 'noopener');
 }, true);
 // ventana pequeña al centro, con el diseño de la página (en el celular los avisos del navegador se ven mal; 14/11).
 // En pantalla completa real va dentro del mapa, que es lo único que se ve.

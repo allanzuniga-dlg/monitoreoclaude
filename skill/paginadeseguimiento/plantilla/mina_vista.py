@@ -41,7 +41,7 @@ CSS = r'''
 .minaBar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 8px}.minaBar b{font-size:14px}
 .minaBar button,.mModal button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:5px 12px;font-size:13px;cursor:pointer;font-weight:600}
 .minaBar button:hover,.mModal button:hover{border-color:var(--a);color:var(--a)}
-.minaMapa{position:relative;min-height:0}
+.minaMapa{position:relative;min-height:0}#minaV .mDrv{position:absolute;left:10px;bottom:10px;z-index:3;padding:7px 14px;border-radius:9px;background:#1a73e8;color:#fff;font-weight:700;font-size:13.5px;text-decoration:none;box-shadow:0 2px 6px #0006}#minaV .mDrv[hidden]{display:none}
 #minaModal{position:absolute;top:0;right:0;bottom:0;left:0;display:flex;align-items:center;justify-content:center;background:#0b0d1f99;border-radius:10px;padding:12px;z-index:5}
 #minaModal[hidden]{display:none}
 .mModal{background:var(--card);color:var(--ink);border-radius:14px;box-shadow:0 12px 40px #0008;padding:16px 18px;width:min(460px,100%);max-height:100%;overflow:auto}
@@ -74,7 +74,7 @@ CSS = r'''
 #minaDet li small{grid-column:2/4;color:var(--mut);margin-top:-2px}#minaDet .meta{color:var(--mut);font-size:12px;margin:2px 0 6px}
 '''
 
-HTML = r'''<section id="minaV" class="card fija hide"><div class="minaBar"><b>⛏ Mina del avance</b><button id="minaFS" type="button" aria-pressed="false">⛶ Pantalla completa</button></div><div class="minaMapa" id="minaMapa"><button id="minaFSsalir" class="mFsSalir" type="button" title="Salir de pantalla completa" aria-label="Salir de pantalla completa"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button><svg id="minaS" role="img" aria-label="Mina del avance"></svg><div id="minaModal" hidden role="dialog" aria-modal="true" aria-labelledby="mTit"><div class="mModal" id="mCont"></div></div></div><div id="minaDet"><p class="vacio">Toque un objetivo, una tarea o el carro minero para ver el detalle.</p></div></section>'''
+HTML = r'''<section id="minaV" class="card fija hide"><div class="minaBar"><b>⛏ Mina del avance</b><button id="minaFS" type="button" aria-pressed="false">⛶ Pantalla completa</button></div><div class="minaMapa" id="minaMapa"><button id="minaFSsalir" class="mFsSalir" type="button" title="Salir de pantalla completa" aria-label="Salir de pantalla completa"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button><a id="minaDrv" class="mDrv" hidden target="_blank" rel="noopener">▶ Ver video en Drive</a><svg id="minaS" role="img" aria-label="Mina del avance"></svg><div id="minaModal" hidden role="dialog" aria-modal="true" aria-labelledby="mTit"><div class="mModal" id="mCont"></div></div></div><div id="minaDet"><p class="vacio">Toque un objetivo, una tarea o el carro minero para ver el detalle.</p></div></section>'''
 
 JS = r'''
 // ---- vista «Mina»: el pollito cava tarea por tarea hacia cada objetivo; lo terminado va al carro
@@ -114,7 +114,7 @@ function cavado(e) {
 function minaArmar(E) {
   const s = $('#minaS'); s.innerHTML = ''; const n = E.idiomas.length; NIVEL = minaNivel(Math.max(n, 1)); const H = minaAlto(n);
   s.setAttribute('viewBox', `0 0 1000 ${H}`); MINA.H = H;
-  sv('defs', {}, s).innerHTML = `<linearGradient id="mCielo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd3ff"/><stop offset="1" stop-color="#d9f1ff"/></linearGradient>
+  sv('defs', {}, s).innerHTML = `<pattern id="mPiedra" patternUnits="userSpaceOnUse" width="34" height="34"><rect width="34" height="34" fill="#6e4b2e"/><ellipse cx="7" cy="8" rx="5.5" ry="3.8" fill="#8d8178" stroke="#4a3a30" stroke-width=".8"/><ellipse cx="24" cy="20" rx="6.5" ry="4.2" fill="#7a6f66" stroke="#4a3a30" stroke-width=".8"/><ellipse cx="12" cy="27" rx="3.8" ry="2.6" fill="#9b8f86" stroke="#4a3a30" stroke-width=".6"/><circle cx="28" cy="6" r="2" fill="#5a3b22"/><circle cx="18" cy="12" r="1.6" fill="#4d321d"/><circle cx="30" cy="30" r="1.4" fill="#8a6440"/><circle cx="3" cy="19" r="1.5" fill="#8a6440"/></pattern><linearGradient id="mCielo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd3ff"/><stop offset="1" stop-color="#d9f1ff"/></linearGradient>
     <linearGradient id="mTierraG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a6b43"/><stop offset=".35" stop-color="#7b5233"/><stop offset="1" stop-color="#4a301e"/></linearGradient>
     <radialGradient id="mLuz"><stop offset="0" stop-color="#fff3a8" stop-opacity=".55"/><stop offset="1" stop-color="#fff3a8" stop-opacity="0"/></radialGradient>
     <pattern id="mRay" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="16" fill="#ffffff33"/></pattern>`;
@@ -157,7 +157,9 @@ function minaArmar(E) {
   MINA.gal = []; MINA.objs = [];
   E.idiomas.forEach((e, i) => {
     const y = 200 + i * NIVEL, col = COLG[i % COLG.length], dd = `M${X0} ${y} C ${X0 + 240} ${y + 22}, ${XF - 300} ${y - 22}, ${XF} ${y}`;
-    sv('path', {d: dd, stroke: '#00000040', 'stroke-width': 3, 'stroke-dasharray': '5 9', fill: 'none'}, capT);
+    // todo el tramo de cada actividad es tierra con piedras; el pollito lo va cavando y el túnel queda encima (14/11)
+    sv('path', {d: dd, stroke: '#3b2716', 'stroke-width': 36, 'stroke-linecap': 'round', fill: 'none'}, capT);
+    sv('path', {d: dd, stroke: 'url(#mPiedra)', 'stroke-width': 30, 'stroke-linecap': 'round', fill: 'none'}, capT);
     const fondo = sv('path', {d: dd, stroke: '#1d120b', 'stroke-width': 30, 'stroke-linecap': 'round', fill: 'none', pathLength: 1000, 'stroke-dasharray': '0 1000'}, capT);
     const luz = sv('path', {d: dd, stroke: '#3a271a', 'stroke-width': 20, 'stroke-linecap': 'round', fill: 'none', pathLength: 1000, 'stroke-dasharray': '0 1000'}, capT);
     const L = fondo.getTotalLength(), k = Math.max(1, e.pasos.length), pt = t => fondo.getPointAtLength(L * t);
@@ -301,6 +303,8 @@ function minaMedidor(k, p, txt) {
 }
 function mina(E) {
   MINA.E = E; if (MINA.key !== minaClave(E)) minaArmar(E);
+  { const D = (E.checklist && E.checklist.drive) || {}, k = Object.keys(D).filter(x => D[x] && D[x].url).sort((x, y) => (D[y].t || 0) - (D[x].t || 0))[0], md = $('#minaDrv');
+    md.hidden = !k; if (k) { md.href = D[k].url; md.textContent = '▶ Ver video en Drive · ' + k.toUpperCase(); } }
   MINA.tot.tv.textContent = E.total + '%'; MINA.tot.cr.setAttribute('width', 148 * Math.max(0, Math.min(100, E.total)) / 100);
   const S = E.sis || {}, cpu = S.total || 0, ram = S.mem ? 100 * S.mem[0] / S.mem[1] : 0;
   minaMedidor('cpu', cpu, cpu.toFixed(0) + '%'); minaMedidor('ram', ram, ram.toFixed(0) + '%');
@@ -317,12 +321,12 @@ function mina(E) {
       T.cam.classList.toggle('hide', !(v >= 100 && c.act >= 0 && j > c.act));   // terminada fuera de orden: cámara ya excavada
       T.g.classList.toggle('ahora', j === c.act); T.et.setAttribute('transform', j === c.act && T.arriba ? `translate(0 ${72 + (T.ex || 0)})` : '');   // el rótulo de la tarea en curso va debajo: arriba está el pollito
       T.tt.textContent = `${p[0]}: ${v}%${p[2] ? ' · ' + p[2] : ''}`;
-      const roca = v < 100; T.et.style.display = roca ? 'none' : ''; T.ro.style.display = T.rn.style.display = roca ? '' : 'none';
+      const roca = v < 100; T.et.style.display = roca ? 'none' : ''; T.ro.style.display = 'none'; T.rn.style.display = roca ? '' : 'none';
       // la roca de la tarea en curso va justo delante del pollito, para que no la tape
       const q = j === c.act ? G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 30)) : {x: T.mx, y: T.my}; T.ro.setAttribute('transform', `translate(${q.x} ${q.y})`);
       if (roca) { T.rs.setAttribute('transform', `scale(${(1 - .7 * v / 100).toFixed(3)})`); T.rp.textContent = v + '%';
-        const Lr = minaLineas(nomTarea(p[0]), Math.max(8, Math.floor((T.w - 4) / 5.4))), ar = T.arriba && !(j === c.act);
-        minaTexto(T.rn, Lr, q.x, ar ? q.y - 28 - 11 * (Lr.length - 1) : q.y + 34, 11); } });   // el texto va centrado bajo (o sobre) su roca
+        const Lr = minaLineas(nomTarea(p[0]), Math.max(8, Math.floor((T.w - 4) / 5.4))).concat([(j === c.act ? '⛏ ' : '') + v + '%']), ar = T.arriba && !(j === c.act);
+        minaTexto(T.rn, Lr, T.mx, ar ? T.my - 24 - 11 * (Lr.length - 1) : T.my + 32, 11); } });   // el texto va centrado bajo (o sobre) su roca
     o.aro.setAttribute('stroke-dasharray', `${f ? 100 : e.pct} 100`); o.cr.classList.toggle('hide', f); o.hueco.classList.toggle('hide', !f);
     { const Ln = minaLineas(e.nombre, 20), ex = 14 * (Ln.length - 1); minaTexto(o.nom, Ln, 0, -67 - ex, 14); o.caja.setAttribute('y', -84 - ex); o.caja.setAttribute('height', 40 + ex); } o.pct.textContent = f ? '✔ en el carro' : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
     o.tt.textContent = `${e.nombre}: ${e.pct}%`; o.g.classList.toggle('sel', MINA.sel === e.L);
@@ -348,7 +352,7 @@ function mina(E) {
   let x, y, izq = false, quieto = true, fiesta = false;
   if (act) {
     const [e, i] = act, G = MINA.gal[i], c = cavado(e);
-    const a = G.fondo.getPointAtLength(Math.max(0, G.L * c.f - 14)), b = G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 4));
+    const a = G.fondo.getPointAtLength(Math.max(0, G.L * c.f - 46)), b = G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 4));   // 46 = alcance del pico: golpea justo el borde del túnel
     x = a.x; y = a.y + 12; izq = b.x < a.x - .5; if (c.f < .02) { x = X0 + 8; y = G.y + 12; }
     quieto = !enCurso(e) && !(E.procesos && E.procesos.length);
   } else { x = 520; y = 100; fiesta = true; }
@@ -364,7 +368,7 @@ function mina(E) {
   MINA.extras.innerHTML = '';
   if (act) pend.filter(([e]) => e !== act[0] && enCurso(e) && (ahora - (MINA.cambio[e.L] || 0) < 10 * 60000 || (!e.tarea && enProc.includes(e.L)))).forEach(([e, i]) => {
     const G = MINA.gal[i], c = cavado(e); if (c.f < .02) return;
-    const a = G.fondo.getPointAtLength(Math.max(0, G.L * c.f - 14)), b = G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 4));
+    const a = G.fondo.getPointAtLength(Math.max(0, G.L * c.f - 46)), b = G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 4));   // 46 = alcance del pico: golpea justo el borde del túnel
     const g = sv('g', {class: 'pollo' + (cpu > 90 ? ' suda' : ''), transform: `translate(${a.x} ${a.y + 12})`}, MINA.extras), cl = MINA.giro.cloneNode(true);
     cl.setAttribute('transform', b.x < a.x - .5 ? 'scale(-1 1)' : ''); g.appendChild(cl); });
   if (MINA.sel) minaDetalle();

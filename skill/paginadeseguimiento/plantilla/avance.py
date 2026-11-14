@@ -224,7 +224,8 @@ def estado():
          dict(L=L, nombre=CFG['idiomas'][L], pct=0, ok=False, err=False, frases=[], revisar=0, drive='',
               pasos=[['Guion', 0, 'pendiente'], ['Voz', 0, ''], ['Render de la imagen', 0, ''], ['Audio y subtítulos', 0, ''], ['Verificación del archivo final', 0, ''], ['Subida a Drive', 0, ('a ' + CFG['drive_destino']) if CFG.get('drive_destino') else '']])
          for L in LANGS]   # los idiomas sin guion todavía aparecen en 0 %
-    if CFG.get('solo_tareas'): E = []   # fase sin idiomas (p. ej. guion y versión muda de revisión): solo tarjetas de tarea
+    if CFG.get('solo_tareas'): E = []
+    E = [e for e in E if e['L'] not in set((chk or {}).get('ocultas') or [])]   # ocultadas por el usuario con la escobilla   # fase sin idiomas (p. ej. guion y versión muda de revisión): solo tarjetas de tarea
     # tarjetas de TAREA (checklist «tareas», con paso.py --tarea): van primero, con la misma forma que las de idioma
     T = sorted(((chk or {}).get('tareas') or {}).items(), key=lambda x: x[1].get('orden', 0))
     E = [dict(L='t_' + k, nombre=t['nombre'], pct=(pc := sum(p[1] for p in t['pasos']) // max(1, len(t['pasos']))), ok=pc >= 100, err=False,
@@ -322,10 +323,11 @@ li small{grid-column:1/3;font-size:12.5px;color:var(--mut);margin-top:-2px}
 
 
 
+
 #minaV{margin-bottom:12px;padding:10px}#minaV #minaS{width:100%;height:auto;display:block;border-radius:10px;user-select:none}
 #minaV .obj,#minaV .gema,#minaV .carro,#minaV .tarea{cursor:pointer}#minaV .obj:focus,#minaV .gema:focus,#minaV .tarea:focus{outline:none}
 #minaV .obj:hover .cristales,#minaV .obj:focus .cristales{filter:brightness(1.25)}#minaV .gema:hover{filter:brightness(1.3)}
-#minaV .rn,#minaV .rp{paint-order:stroke;stroke:#1d120b;stroke-width:3px;stroke-linejoin:round}#minaV .tarea:hover .rocaF{stroke:#fff}#minaV .rocaS{transition:transform .8s ease}#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
+#minaV .escoba{cursor:pointer}#minaV .escoba:hover circle,#minaV .escoba:focus circle{fill:#ffe9a8}#minaV .rn,#minaV .rp{paint-order:stroke;stroke:#1d120b;stroke-width:3px;stroke-linejoin:round}#minaV .tarea:hover .rocaF{stroke:#fff}#minaV .rocaS{transition:transform .8s ease}#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
 #minaV .pico{transform-box:fill-box;transform-origin:0% 100%;animation:mPico .7s ease-in-out infinite}
 #minaV .cuerpoP{animation:mBote .7s ease-in-out infinite}
 #minaV .quieto .pico{animation:none;transform:rotate(-20deg)}#minaV .quieto .cuerpoP{animation:none}
@@ -512,6 +514,7 @@ const vaPor = e => { const cur = e.pasos.find(p => p[1] < 100), act = enCurso(e)
 
 
 
+
 // ---- vista «Mina»: el pollito cava tarea por tarea hacia cada objetivo; lo terminado va al carro
 const MINA = {key: '', sel: null, E: null};
 const COLG = ['#3fb6ff', '#ff5d8f', '#7ee081', '#ffb547', '#b18cff', '#4fd1c5', '#ff7a45', '#f5e663'];
@@ -637,7 +640,14 @@ function minaArmar(E) {
     const nom = sv('text', {x: 0, y: -67, 'text-anchor': 'middle', 'font-size': 12.5, fill: '#fff', 'font-weight': 700}, g);
     const pct = sv('text', {x: 0, y: -51, 'text-anchor': 'middle', 'font-size': 13, fill: col, 'font-weight': 800}, g);
     const tt = sv('title', {}, g);
-    MINA.objs.push({g, cr, hueco, logrado, aro, nom, pct, tt, col, caja});
+    // escobilla: solo en el objetivo terminado; el usuario decide si lo quita del mapa (14/11)
+    const esc = sv('g', {class: 'escoba hide', role: 'button', tabindex: 0, transform: 'translate(56 -88)'}, g); esc.dataset.l = e.L;
+    sv('circle', {r: 13, fill: '#fff', stroke: '#2b2118', 'stroke-width': 2}, esc);
+    sv('line', {x1: 6, y1: -7, x2: -1, y2: 2, stroke: '#8a5a2b', 'stroke-width': 2.6, 'stroke-linecap': 'round'}, esc);
+    sv('path', {d: 'M-1 0 L3 4 L-3 10 L-9 4 Z', fill: '#e0a526', stroke: '#8a5a2b', 'stroke-width': 1.2, 'stroke-linejoin': 'round'}, esc);
+    sv('path', {d: 'M-6 7 L-4 5 M-3 8 L-1 6', stroke: '#8a5a2b', 'stroke-width': 1}, esc);
+    sv('title', {}, esc).textContent = 'Limpiar del mapa';
+    MINA.objs.push({g, cr, hueco, logrado, aro, nom, pct, tt, col, caja, esc});
   });
   const cg = sv('g', {class: 'carro', tabindex: 0, role: 'button', transform: 'translate(430 96)'}, s);
   MINA.gemas = sv('g', {}, cg);
@@ -764,6 +774,7 @@ function mina(E) {
         minaTexto(T.rn, Lr, T.mx, ar ? T.my - 24 - 11 * (Lr.length - 1) : T.my + 32, 11); } });   // el texto va centrado bajo (o sobre) su roca
     o.aro.setAttribute('stroke-dasharray', `${f ? 100 : e.pct} 100`); o.cr.classList.toggle('hide', f); o.hueco.classList.toggle('hide', !f);
     { const Ln = minaLineas(e.nombre, 20), ex = 14 * (Ln.length - 1); minaTexto(o.nom, Ln, 0, -67 - ex, 14); o.caja.setAttribute('y', -84 - ex); o.caja.setAttribute('height', 40 + ex); } o.pct.textContent = f ? '✔ en el carro' : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
+    o.esc.classList.toggle('hide', !f);
     o.tt.textContent = `${e.nombre}: ${e.pct}%`; o.g.classList.toggle('sel', MINA.sel === e.L);
     if (f) fins.push({e, col: o.col});
   });
@@ -889,6 +900,14 @@ addEventListener('orientationchange', () => [100, 350, 700, 1200].forEach(t => s
 ['fullscreenchange', 'webkitfullscreenchange'].forEach(t => document.addEventListener(t, () => [100, 400].forEach(d => setTimeout(minaEncuadre, d))));
 ['fullscreenchange', 'webkitfullscreenchange'].forEach(t => document.addEventListener(t, minaBotonFS));
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (!$('#minaModal').hidden) minaCerrar(); else if ($('#minaMapa').classList.contains('fsPseudo')) { $('#minaMapa').classList.remove('fsPseudo'); minaBotonFS(); } } });
+document.addEventListener('click', ev => {
+  const b = ev.target.closest && ev.target.closest('#minaV .escoba'); if (!b) return;
+  ev.preventDefault(); ev.stopPropagation();
+  const e = MINA.E && MINA.E.idiomas.find(x => x.L === b.dataset.l); if (!e) return;
+  if (!confirm(`¿Limpiar del mapa «${e.nombre}»? Ya está terminado; deja de verse en la página.`)) return;
+  fetch('limpiar', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id: e.L})})
+    .then(r => { if (!r.ok) return r.text().then(t => alert('No se pudo limpiar: ' + t)); b.classList.add('hide'); }).catch(() => alert('No se pudo limpiar: sin conexión'));
+}, true);
 // al elegir la vista Mina, el mapa sube hasta arriba de la ventana y la ocupa entera
 document.addEventListener('click', ev => { if (ev.target.closest && ev.target.closest('#vistas button[data-v=mina]')) setTimeout(() => { const m = $('#minaV'); if (m) m.scrollIntoView({block: 'start'}); }, 300); });
 document.addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.closest && ev.target.closest('#minaV [role=button]')) { ev.preventDefault(); ev.target.dispatchEvent(new MouseEvent('click', {bubbles: true})); } });
@@ -1067,6 +1086,31 @@ class H(BaseHTTPRequestHandler):
             except (BrokenPipeError, ConnectionResetError):
                 return
         self._send(404, 'no encontrado', 'text/plain; charset=utf-8')
+
+    def do_POST(self):
+        if self.path.split('?')[0] != '/limpiar':
+            return self._send(404, 'no encontrado', 'text/plain; charset=utf-8')
+        try:
+            n = min(int(self.headers.get('Content-Length', '0') or 0), 2000)
+            ident = str(json.loads(self.rfile.read(n) or b'{}').get('id', ''))
+            import fcntl
+            with open(os.path.join(P, '.checklist.lock'), 'w') as lk:
+                fcntl.flock(lk, fcntl.LOCK_EX)
+                ruta = os.path.join(P, 'checklist.json'); chk = json.load(open(ruta, encoding='utf-8'))
+                T = chk.get('tareas') or {}
+                if ident.startswith('t_') and ident[2:] in T:
+                    if not all(x[1] >= 100 for x in T[ident[2:]]['pasos']):
+                        return self._send(409, 'la tarjeta no está terminada', 'text/plain; charset=utf-8')
+                    del T[ident[2:]]
+                elif ident and re.fullmatch(r'[A-Za-z0-9_-]{1,40}', ident):
+                    chk.setdefault('ocultas', [])
+                    if ident not in chk['ocultas']: chk['ocultas'].append(ident)
+                else:
+                    return self._send(400, 'id no válido', 'text/plain; charset=utf-8')
+                tmp = ruta + f'.{os.getpid()}.tmp'; json.dump(chk, open(tmp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1); os.replace(tmp, ruta)
+            return self._send(200, '{"ok": true}', 'application/json')
+        except Exception as ex:
+            return self._send(500, str(ex), 'text/plain; charset=utf-8')
 
     def _ws(self):
         clave = self.headers.get('Sec-WebSocket-Key', '')

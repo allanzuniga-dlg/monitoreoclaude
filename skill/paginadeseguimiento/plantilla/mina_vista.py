@@ -11,7 +11,7 @@ CSS = r'''
 #minaV{margin-bottom:12px;padding:10px}#minaV #minaS{width:100%;height:auto;display:block;border-radius:10px;user-select:none}
 #minaV .obj,#minaV .gema,#minaV .carro,#minaV .tarea{cursor:pointer}#minaV .obj:focus,#minaV .gema:focus,#minaV .tarea:focus{outline:none}
 #minaV .obj:hover .cristales,#minaV .obj:focus .cristales{filter:brightness(1.25)}#minaV .gema:hover{filter:brightness(1.3)}
-#minaV .rn,#minaV .rp{paint-order:stroke;stroke:#1d120b;stroke-width:3px;stroke-linejoin:round}#minaV .tarea:hover .rocaF{stroke:#fff}#minaV .rocaS{transition:transform .8s ease}#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
+#minaV .escoba{cursor:pointer}#minaV .escoba:hover circle,#minaV .escoba:focus circle{fill:#ffe9a8}#minaV .rn,#minaV .rp{paint-order:stroke;stroke:#1d120b;stroke-width:3px;stroke-linejoin:round}#minaV .tarea:hover .rocaF{stroke:#fff}#minaV .rocaS{transition:transform .8s ease}#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
 #minaV .pico{transform-box:fill-box;transform-origin:0% 100%;animation:mPico .7s ease-in-out infinite}
 #minaV .cuerpoP{animation:mBote .7s ease-in-out infinite}
 #minaV .quieto .pico{animation:none;transform:rotate(-20deg)}#minaV .quieto .cuerpoP{animation:none}
@@ -202,7 +202,14 @@ function minaArmar(E) {
     const nom = sv('text', {x: 0, y: -67, 'text-anchor': 'middle', 'font-size': 12.5, fill: '#fff', 'font-weight': 700}, g);
     const pct = sv('text', {x: 0, y: -51, 'text-anchor': 'middle', 'font-size': 13, fill: col, 'font-weight': 800}, g);
     const tt = sv('title', {}, g);
-    MINA.objs.push({g, cr, hueco, logrado, aro, nom, pct, tt, col, caja});
+    // escobilla: solo en el objetivo terminado; el usuario decide si lo quita del mapa (14/11)
+    const esc = sv('g', {class: 'escoba hide', role: 'button', tabindex: 0, transform: 'translate(56 -88)'}, g); esc.dataset.l = e.L;
+    sv('circle', {r: 13, fill: '#fff', stroke: '#2b2118', 'stroke-width': 2}, esc);
+    sv('line', {x1: 6, y1: -7, x2: -1, y2: 2, stroke: '#8a5a2b', 'stroke-width': 2.6, 'stroke-linecap': 'round'}, esc);
+    sv('path', {d: 'M-1 0 L3 4 L-3 10 L-9 4 Z', fill: '#e0a526', stroke: '#8a5a2b', 'stroke-width': 1.2, 'stroke-linejoin': 'round'}, esc);
+    sv('path', {d: 'M-6 7 L-4 5 M-3 8 L-1 6', stroke: '#8a5a2b', 'stroke-width': 1}, esc);
+    sv('title', {}, esc).textContent = 'Limpiar del mapa';
+    MINA.objs.push({g, cr, hueco, logrado, aro, nom, pct, tt, col, caja, esc});
   });
   const cg = sv('g', {class: 'carro', tabindex: 0, role: 'button', transform: 'translate(430 96)'}, s);
   MINA.gemas = sv('g', {}, cg);
@@ -329,6 +336,7 @@ function mina(E) {
         minaTexto(T.rn, Lr, T.mx, ar ? T.my - 24 - 11 * (Lr.length - 1) : T.my + 32, 11); } });   // el texto va centrado bajo (o sobre) su roca
     o.aro.setAttribute('stroke-dasharray', `${f ? 100 : e.pct} 100`); o.cr.classList.toggle('hide', f); o.hueco.classList.toggle('hide', !f);
     { const Ln = minaLineas(e.nombre, 20), ex = 14 * (Ln.length - 1); minaTexto(o.nom, Ln, 0, -67 - ex, 14); o.caja.setAttribute('y', -84 - ex); o.caja.setAttribute('height', 40 + ex); } o.pct.textContent = f ? '✔ en el carro' : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
+    o.esc.classList.toggle('hide', !f);
     o.tt.textContent = `${e.nombre}: ${e.pct}%`; o.g.classList.toggle('sel', MINA.sel === e.L);
     if (f) fins.push({e, col: o.col});
   });
@@ -454,6 +462,14 @@ addEventListener('orientationchange', () => [100, 350, 700, 1200].forEach(t => s
 ['fullscreenchange', 'webkitfullscreenchange'].forEach(t => document.addEventListener(t, () => [100, 400].forEach(d => setTimeout(minaEncuadre, d))));
 ['fullscreenchange', 'webkitfullscreenchange'].forEach(t => document.addEventListener(t, minaBotonFS));
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (!$('#minaModal').hidden) minaCerrar(); else if ($('#minaMapa').classList.contains('fsPseudo')) { $('#minaMapa').classList.remove('fsPseudo'); minaBotonFS(); } } });
+document.addEventListener('click', ev => {
+  const b = ev.target.closest && ev.target.closest('#minaV .escoba'); if (!b) return;
+  ev.preventDefault(); ev.stopPropagation();
+  const e = MINA.E && MINA.E.idiomas.find(x => x.L === b.dataset.l); if (!e) return;
+  if (!confirm(`¿Limpiar del mapa «${e.nombre}»? Ya está terminado; deja de verse en la página.`)) return;
+  fetch('limpiar', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id: e.L})})
+    .then(r => { if (!r.ok) return r.text().then(t => alert('No se pudo limpiar: ' + t)); b.classList.add('hide'); }).catch(() => alert('No se pudo limpiar: sin conexión'));
+}, true);
 // al elegir la vista Mina, el mapa sube hasta arriba de la ventana y la ocupa entera
 document.addEventListener('click', ev => { if (ev.target.closest && ev.target.closest('#vistas button[data-v=mina]')) setTimeout(() => { const m = $('#minaV'); if (m) m.scrollIntoView({block: 'start'}); }, 300); });
 document.addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.closest && ev.target.closest('#minaV [role=button]')) { ev.preventDefault(); ev.target.dispatchEvent(new MouseEvent('click', {bubbles: true})); } });

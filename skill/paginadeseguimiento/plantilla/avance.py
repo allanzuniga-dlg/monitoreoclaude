@@ -313,6 +313,8 @@ li small{grid-column:1/3;font-size:12.5px;color:var(--mut);margin-top:-2px}
 
 
 
+
+
 #minaV{margin-bottom:12px;padding:10px}#minaV #minaS{width:100%;height:auto;display:block;border-radius:10px;user-select:none}
 #minaV .obj,#minaV .gema,#minaV .carro,#minaV .tarea{cursor:pointer}#minaV .obj:focus,#minaV .gema:focus,#minaV .tarea:focus{outline:none}
 #minaV .obj:hover .cristales,#minaV .obj:focus .cristales{filter:brightness(1.25)}#minaV .gema:hover{filter:brightness(1.3)}
@@ -358,11 +360,11 @@ li small{grid-column:1/3;font-size:12.5px;color:var(--mut);margin-top:-2px}
 .mModal dl{margin:6px 0 12px;font-size:13px;display:grid;grid-template-columns:auto 1fr;gap:4px 10px}.mModal dt{color:var(--mut)}.mModal dd{margin:0;overflow-wrap:anywhere}
 .mModal .mAcc{display:flex;justify-content:flex-end;gap:8px}
 .mFsSalir{display:none}#minaV .mFsSalir svg{width:18px;height:18px;display:block}
-#minaMapa:fullscreen,#minaMapa.fsPseudo{display:block;width:100vw;height:100vh;height:100dvh;padding:0;margin:0;background:#4a301e;overflow:hidden}
+#minaMapa:fullscreen{display:block;width:100vw;height:100vh;height:100dvh;padding:0;margin:0;background:#4a301e;overflow:hidden}#minaMapa:-webkit-full-screen{display:block;width:100vw;height:100vh;height:100dvh;padding:0;margin:0;background:#4a301e;overflow:hidden}#minaMapa.fsPseudo{display:block;width:100vw;height:100vh;height:100dvh;padding:0;margin:0;background:#4a301e;overflow:hidden}
 #minaMapa.fsPseudo{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;z-index:9999}
-#minaMapa:fullscreen #minaS,#minaMapa.fsPseudo #minaS{width:100%;height:100%;border-radius:0}
-#minaMapa:fullscreen #minaModal,#minaMapa.fsPseudo #minaModal{border-radius:0}
-#minaMapa:fullscreen .mFsSalir,#minaMapa.fsPseudo .mFsSalir{display:flex;position:absolute;top:10px;right:10px;z-index:4;width:32px;height:32px;padding:0;border:0;border-radius:50%;align-items:center;justify-content:center;background:#00000040;color:#fff;cursor:pointer;opacity:.5;transition:opacity .2s,background .2s}
+#minaMapa:fullscreen #minaS{width:100%;height:100%;border-radius:0}#minaMapa:-webkit-full-screen #minaS{width:100%;height:100%;border-radius:0}#minaMapa.fsPseudo #minaS{width:100%;height:100%;border-radius:0}
+#minaMapa:fullscreen #minaModal{border-radius:0}#minaMapa:-webkit-full-screen #minaModal{border-radius:0}#minaMapa.fsPseudo #minaModal{border-radius:0}
+#minaMapa:fullscreen .mFsSalir{display:flex;position:absolute;top:10px;right:10px;z-index:4;width:32px;height:32px;padding:0;border:0;border-radius:50%;align-items:center;justify-content:center;background:#00000040;color:#fff;cursor:pointer;opacity:.5;transition:opacity .2s,background .2s}#minaMapa:-webkit-full-screen .mFsSalir{display:flex;position:absolute;top:10px;right:10px;z-index:4;width:32px;height:32px;padding:0;border:0;border-radius:50%;align-items:center;justify-content:center;background:#00000040;color:#fff;cursor:pointer;opacity:.5;transition:opacity .2s,background .2s}#minaMapa.fsPseudo .mFsSalir{display:flex;position:absolute;top:10px;right:10px;z-index:4;width:32px;height:32px;padding:0;border:0;border-radius:50%;align-items:center;justify-content:center;background:#00000040;color:#fff;cursor:pointer;opacity:.5;transition:opacity .2s,background .2s}
 #minaMapa.girado #minaS{position:absolute;top:50%;left:50%;width:100vh;width:100dvh;height:100vw;transform:translate(-50%,-50%) rotate(90deg)}
 #minaMapa .mFsSalir:hover,#minaMapa .mFsSalir:focus-visible{opacity:1;background:#00000080;outline:none}
 .mModal .mDet ul{list-style:none;margin:0 0 10px;padding:0;font-size:13px}.mModal .mDet li{display:grid;grid-template-columns:22px 1fr auto;gap:6px;padding:2px 0}
@@ -485,6 +487,8 @@ const vaPor = e => { const cur = e.pasos.find(p => p[1] < 100), act = enCurso(e)
 
 
 
+
+
 // ---- vista «Mina»: el pollito cava tarea por tarea hacia cada objetivo; lo terminado va al carro
 const MINA = {key: '', sel: null, E: null};
 const COLG = ['#3fb6ff', '#ff5d8f', '#7ee081', '#ffb547', '#b18cff', '#4fd1c5', '#ff7a45', '#f5e663'];
@@ -576,8 +580,8 @@ function minaArmar(E) {
     [[-14, 8, 16, 34], [4, 10, 20, 44], [20, 8, 14, 28]].forEach(([x, yy, w, h]) => sv('path', {d: `M${x} ${yy} L${x - w / 2} ${yy - h * .65} L${x} ${yy - h} L${x + w / 2} ${yy - h * .65} Z`, fill: col, stroke: '#ffffffaa', 'stroke-width': 1.5}, cr));
     const hueco = sv('g', {class: 'hide'}, g);   // objetivo alcanzado: el porcentaje logrado en el lugar de los cristales
     sv('circle', {r: 28, fill: '#1d120b', stroke: col, 'stroke-width': 2}, hueco);
-    const logrado = sv('text', {x: 0, y: 2, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 800, fill: col}, hueco);
-    sv('text', {x: 0, y: 16, 'text-anchor': 'middle', 'font-size': 8.5, 'font-weight': 700, fill: '#ffffffb0', 'letter-spacing': '.05em'}, hueco).textContent = 'LOGRADO';
+    const logrado = sv('text', {x: 0, y: 3, 'text-anchor': 'middle', 'font-size': 15, 'font-weight': 800, fill: col}, hueco);
+    sv('text', {x: 0, y: 14, 'text-anchor': 'middle', 'font-size': 6.2, 'font-weight': 700, fill: '#ffffffb0'}, hueco).textContent = 'LOGRADO';
     sv('circle', {r: 36, fill: 'none', stroke: '#00000055', 'stroke-width': 7}, g);
     const aro = sv('circle', {r: 36, fill: 'none', stroke: col, 'stroke-width': 7, 'stroke-linecap': 'round', pathLength: 100, 'stroke-dasharray': '0 100', transform: 'rotate(-90)', class: 'aro'}, g);
     sv('rect', {x: -66, y: -84, width: 132, height: 40, rx: 9, fill: '#000000b0'}, g);
@@ -699,7 +703,7 @@ function mina(E) {
       T.g.classList.toggle('ahora', j === c.act); T.et.setAttribute('transform', j === c.act && T.arriba ? 'translate(0 72)' : '');   // el rótulo de la tarea en curso va debajo: arriba está el pollito
       T.tt.textContent = `${p[0]}: ${v}%${p[2] ? ' · ' + p[2] : ''}`; });
     o.aro.setAttribute('stroke-dasharray', `${f ? 100 : e.pct} 100`); o.cr.classList.toggle('hide', f); o.hueco.classList.toggle('hide', !f);
-    o.nom.textContent = corto(e.nombre, 20); o.pct.textContent = f ? `✔ ${e.pct}% · en el carro` : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
+    o.nom.textContent = corto(e.nombre, 20); o.pct.textContent = f ? '✔ en el carro' : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
     o.tt.textContent = `${e.nombre}: ${e.pct}%`; o.g.classList.toggle('sel', MINA.sel === e.L);
     if (f) fins.push({e, col: o.col});
   });
@@ -781,15 +785,15 @@ document.addEventListener('click', ev => {
 const minaTelefono = () => minaMovil() && Math.min(screen.width, screen.height) < 600;   // teléfono (en tablet no se gira el mapa)
 const minaMovil = () => matchMedia('(pointer:coarse)').matches || (navigator.maxTouchPoints > 0 && Math.min(screen.width, screen.height) < 820);
 function minaPantalla() {
-  const v = $('#minaMapa'), doc = document, fsEl = doc.fullscreenElement || doc.webkitFullscreenElement;
+  const v = $('#minaMapa'), doc = document, fsEl = doc.fullscreenElement || doc.webkitFullscreenElement || doc.webkitCurrentFullScreenElement;
   if (fsEl || v.classList.contains('fsPseudo')) {
-    if (fsEl) (doc.exitFullscreen || doc.webkitExitFullscreen).call(doc); v.classList.remove('fsPseudo'); minaBotonFS(); return;
+    if (fsEl) (doc.exitFullscreen || doc.webkitExitFullscreen || doc.webkitCancelFullScreen).call(doc); v.classList.remove('fsPseudo'); minaBotonFS(); return;
   }
-  const req = v.requestFullscreen || v.webkitRequestFullscreen;
+  const req = v.requestFullscreen || v.webkitRequestFullscreen || v.webkitRequestFullScreen;
   if (minaMovil() && req) Promise.resolve(req.call(v)).then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => {})).catch(() => v.classList.add('fsPseudo')).finally(minaBotonFS);   // móvil: toda la pantalla, en horizontal si se puede
   else { v.classList.add('fsPseudo'); minaBotonFS(); }                                                               // escritorio: todo el navegador
 }
-const minaEnFS = () => !!(document.fullscreenElement || document.webkitFullscreenElement) || $('#minaMapa').classList.contains('fsPseudo');
+const minaEnFS = () => !!(document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement) || $('#minaMapa').classList.contains('fsPseudo');
 // el mapa entra entero y el cielo / la tierra se extienden hasta los bordes: llena la pantalla sin deformarse ni cortarse
 function minaEncuadre() {
   const s = $('#minaS'); if (!s || !MINA.H) return; const H = MINA.H;

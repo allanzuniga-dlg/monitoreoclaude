@@ -55,10 +55,10 @@ CSS = r'''
 .mFsSalir{display:none}#minaV .mFsSalir svg{width:18px;height:18px;display:block}
 #minaMapa:fullscreen{display:block;width:100vw;height:100vh;height:100dvh;padding:0;margin:0;background:#4a301e;overflow:hidden}#minaMapa:-webkit-full-screen{display:block;width:100vw;height:100vh;height:100dvh;padding:0;margin:0;background:#4a301e;overflow:hidden}#minaMapa.fsPseudo{display:block;width:100vw;height:100vh;height:100dvh;padding:0;margin:0;background:#4a301e;overflow:hidden}
 #minaMapa.fsPseudo{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;z-index:9999}
-#minaMapa:fullscreen #minaS{width:100%;height:100%;border-radius:0}#minaMapa:-webkit-full-screen #minaS{width:100%;height:100%;border-radius:0}#minaMapa.fsPseudo #minaS{width:100%;height:100%;border-radius:0}
+#minaMapa:fullscreen #minaS{width:100%!important;height:100%!important;border-radius:0}#minaMapa:-webkit-full-screen #minaS{width:100%!important;height:100%!important;border-radius:0}#minaMapa.fsPseudo #minaS{width:100%!important;height:100%!important;border-radius:0}
 #minaMapa:fullscreen #minaModal{border-radius:0}#minaMapa:-webkit-full-screen #minaModal{border-radius:0}#minaMapa.fsPseudo #minaModal{border-radius:0}
 #minaMapa:fullscreen .mFsSalir{display:flex;position:absolute;top:10px;right:10px;z-index:4;width:32px;height:32px;padding:0;border:0;border-radius:50%;align-items:center;justify-content:center;background:#00000040;color:#fff;cursor:pointer;opacity:.5;transition:opacity .2s,background .2s}#minaMapa:-webkit-full-screen .mFsSalir{display:flex;position:absolute;top:10px;right:10px;z-index:4;width:32px;height:32px;padding:0;border:0;border-radius:50%;align-items:center;justify-content:center;background:#00000040;color:#fff;cursor:pointer;opacity:.5;transition:opacity .2s,background .2s}#minaMapa.fsPseudo .mFsSalir{display:flex;position:absolute;top:10px;right:10px;z-index:4;width:32px;height:32px;padding:0;border:0;border-radius:50%;align-items:center;justify-content:center;background:#00000040;color:#fff;cursor:pointer;opacity:.5;transition:opacity .2s,background .2s}
-#minaMapa.girado #minaS{position:absolute;top:50%;left:50%;width:100vh;width:100dvh;height:100vw;transform:translate(-50%,-50%) rotate(90deg)}
+#minaMapa.girado #minaS{position:absolute;top:50%;left:50%;width:100vh!important;width:100dvh!important;height:100vw!important;transform:translate(-50%,-50%) rotate(90deg)}
 #minaMapa .mFsSalir:hover,#minaMapa .mFsSalir:focus-visible{opacity:1;background:#00000080;outline:none}
 .mModal .mDet ul{list-style:none;margin:0 0 10px;padding:0;font-size:13px}.mModal .mDet li{display:grid;grid-template-columns:22px 1fr auto;gap:6px;padding:2px 0}
 .mModal .mDet li small{grid-column:2/4;color:var(--mut)}.mModal .mDet h4{margin:8px 0 4px;font-size:14px;display:flex;justify-content:space-between}
@@ -319,10 +319,10 @@ function mina(E) {
       T.tt.textContent = `${p[0]}: ${v}%${p[2] ? ' · ' + p[2] : ''}`;
       const roca = v < 100; T.et.style.display = roca ? 'none' : ''; T.ro.style.display = T.rn.style.display = roca ? '' : 'none';
       // la roca de la tarea en curso va justo delante del pollito, para que no la tape
-      { const q = j === c.act ? G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 30)) : {x: T.mx, y: T.my}; T.ro.setAttribute('transform', `translate(${q.x} ${q.y})`); }
+      const q = j === c.act ? G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 30)) : {x: T.mx, y: T.my}; T.ro.setAttribute('transform', `translate(${q.x} ${q.y})`);
       if (roca) { T.rs.setAttribute('transform', `scale(${(1 - .7 * v / 100).toFixed(3)})`); T.rp.textContent = v + '%';
         const Lr = minaLineas(nomTarea(p[0]), Math.max(8, Math.floor((T.w - 4) / 5.4))), ar = T.arriba && !(j === c.act);
-        minaTexto(T.rn, Lr, T.mx, ar ? T.my - 28 - 11 * (Lr.length - 1) : T.my + 34, 11); } });
+        minaTexto(T.rn, Lr, q.x, ar ? q.y - 28 - 11 * (Lr.length - 1) : q.y + 34, 11); } });   // el texto va centrado bajo (o sobre) su roca
     o.aro.setAttribute('stroke-dasharray', `${f ? 100 : e.pct} 100`); o.cr.classList.toggle('hide', f); o.hueco.classList.toggle('hide', !f);
     { const Ln = minaLineas(e.nombre, 20), ex = 14 * (Ln.length - 1); minaTexto(o.nom, Ln, 0, -67 - ex, 14); o.caja.setAttribute('y', -84 - ex); o.caja.setAttribute('height', 40 + ex); } o.pct.textContent = f ? '✔ en el carro' : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
     o.tt.textContent = `${e.nombre}: ${e.pct}%`; o.g.classList.toggle('sel', MINA.sel === e.L);

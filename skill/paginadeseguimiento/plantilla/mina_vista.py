@@ -11,7 +11,7 @@ CSS = r'''
 #minaV{margin-bottom:12px;padding:10px}#minaV #minaS{width:100%;height:auto;display:block;border-radius:10px;user-select:none}
 #minaV .obj,#minaV .gema,#minaV .carro,#minaV .tarea{cursor:pointer}#minaV .obj:focus,#minaV .gema:focus,#minaV .tarea:focus{outline:none}
 #minaV .obj:hover .cristales,#minaV .obj:focus .cristales{filter:brightness(1.25)}#minaV .gema:hover{filter:brightness(1.3)}
-#minaV .escoba,#minaV .drvO{cursor:pointer}#minaV .drvO:hover circle{fill:#1557b0}.mConf{position:fixed;top:0;right:0;bottom:0;left:0;z-index:10002;display:flex;align-items:center;justify-content:center;background:#0b0d1f99;padding:16px}.mConf .mModal{width:min(340px,100%);text-align:center}.mConf .mModal p{margin:0 0 14px;color:var(--mut);font-size:14px;line-height:1.4}.mConf .bot{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.mConf button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:9px 16px;font-size:15px;font-weight:600;cursor:pointer;min-width:120px}.mConf button.si{background:var(--a);border-color:var(--a);color:#fff}#minaV .escoba:hover circle,#minaV .escoba:focus circle{fill:#ffe9a8}#minaV .rn,#minaV .rp{paint-order:stroke;stroke:#1d120b;stroke-width:3px;stroke-linejoin:round}#minaV .tarea:hover .rocaF{stroke:#fff}#minaV .rocaS{transition:transform .8s ease}#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
+#minaV .escoba,#minaV .drvO{cursor:pointer}.mDrvB{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 4px}.mDrvB .drv{margin:0}#minaV .drvO:hover circle{fill:#1557b0}.mConf{position:fixed;top:0;right:0;bottom:0;left:0;z-index:10002;display:flex;align-items:center;justify-content:center;background:#0b0d1f99;padding:16px}.mConf .mModal{width:min(340px,100%);text-align:center}.mConf .mModal p{margin:0 0 14px;color:var(--mut);font-size:14px;line-height:1.4}.mConf .bot{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.mConf button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:9px 16px;font-size:15px;font-weight:600;cursor:pointer;min-width:120px}.mConf button.si{background:var(--a);border-color:var(--a);color:#fff}#minaV .escoba:hover circle,#minaV .escoba:focus circle{fill:#ffe9a8}#minaV .rn,#minaV .rp{paint-order:stroke;stroke:#1d120b;stroke-width:3px;stroke-linejoin:round}#minaV .tarea:hover .rocaF{stroke:#fff}#minaV .rocaS{transition:transform .8s ease}#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
 #minaV .pico{transform-box:fill-box;transform-origin:0% 100%;animation:mPico .7s ease-in-out infinite}
 #minaV .cuerpoP{animation:mBote .7s ease-in-out infinite}
 #minaV .quieto .pico{animation:none;transform:rotate(-20deg)}#minaV .quieto .cuerpoP{animation:none}
@@ -198,9 +198,9 @@ function minaArmar(E) {
     sv('text', {x: 0, y: 14, 'text-anchor': 'middle', 'font-size': 6.2, 'font-weight': 700, fill: '#ffffffb0'}, hueco).textContent = 'LOGRADO';
     sv('circle', {r: 36, fill: 'none', stroke: '#00000055', 'stroke-width': 7}, g);
     const aro = sv('circle', {r: 36, fill: 'none', stroke: col, 'stroke-width': 7, 'stroke-linecap': 'round', pathLength: 100, 'stroke-dasharray': '0 100', transform: 'rotate(-90)', class: 'aro'}, g);
-    const caja = sv('rect', {x: -66, y: -84, width: 132, height: 40, rx: 9, fill: '#000000b0'}, g);
-    const nom = sv('text', {x: 0, y: -67, 'text-anchor': 'middle', 'font-size': 12.5, fill: '#fff', 'font-weight': 700}, g);
-    const pct = sv('text', {x: 0, y: -51, 'text-anchor': 'middle', 'font-size': 13, fill: col, 'font-weight': 800}, g);
+    const caja = sv('rect', {x: -60, y: -78, width: 120, height: 32, rx: 8, fill: '#000000b0'}, g);   // texto chico: no se monta sobre los demás (14/11)
+    const nom = sv('text', {x: 0, y: -65, 'text-anchor': 'middle', 'font-size': 9.5, fill: '#fff', 'font-weight': 700}, g);
+    const pct = sv('text', {x: 0, y: -52, 'text-anchor': 'middle', 'font-size': 10.5, fill: col, 'font-weight': 800}, g);
     const tt = sv('title', {}, g);
     // escobilla: solo en el objetivo terminado; el usuario decide si lo quita del mapa (14/11)
     const esc = sv('g', {class: 'escoba hide', role: 'button', tabindex: 0, transform: 'translate(56 0)'}, g); esc.dataset.l = e.L;   // a la derecha del círculo del 100 %
@@ -299,7 +299,7 @@ function minaDetalle() {
   const E = MINA.E; if (!E) return; const box = $('#minaDet');
   const uno = e => `<div class="objD"><h4><span>${finM(e) ? '✔' : '⛏'} ${esc(e.nombre)}</span><span>${e.pct}%</span></h4>
     ${e.archivo ? `<p class="meta">${esc(e.archivo)}${e.dur ? ' · ' + e.dur + ' s' : ''}</p>` : ''}
-    ${e.drive ? `<a class="drv" target="_blank" rel="noopener" href="${esc(e.drive)}">▶ Ver en Drive</a>` : ''}
+    ${e.drive ? `<div class="mDrvB"><a class="drv" target="_blank" rel="noopener" href="${esc(e.drive)}">▶ Ver video en Drive</a><button type="button" class="accC" data-u="${esc(e.drive)}">📋 Copiar enlace</button></div>` : ''}
     <ul>${e.pasos.map(p => `<li><span>${p[1] >= 100 ? '✅' : p[1] > 0 ? '⛏' : '⬜'}</span><span>${esc(p[0])}</span><b>${p[1]}%</b>${p[2] ? `<small>${esc(p[2])}</small>` : ''}</li>`).join('')}</ul></div>`;
   if (MINA.sel === '__carro') {
     const f = E.idiomas.filter(finM);
@@ -345,8 +345,8 @@ function mina(E) {
         const Lr = minaLineas(nomTarea(p[0]), Math.max(8, Math.floor((T.w - 4) / 5.4))).concat([(j === c.act ? '⛏ ' : '') + v + '%']), ar = T.arriba && !(j === c.act);
         minaTexto(T.rn, Lr, T.mx, ar ? T.my - 24 - 11 * (Lr.length - 1) : T.my + 32, 11); } });   // el texto va centrado bajo (o sobre) su roca
     o.aro.setAttribute('stroke-dasharray', `${f ? 100 : e.pct} 100`); o.cr.classList.toggle('hide', f); o.hueco.classList.toggle('hide', !f);
-    { const Ln = minaLineas(e.nombre, 20), ex = 14 * (Ln.length - 1); minaTexto(o.nom, Ln, 0, -67 - ex, 14); o.caja.setAttribute('y', -84 - ex); o.caja.setAttribute('height', 40 + ex); } o.pct.textContent = f ? '✔ en el carro' : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
-    o.esc.classList.toggle('hide', !f); o.drv.classList.toggle('hide', !e.drive); o.drv.dataset.u = e.drive || '';
+    { const Ln = minaLineas(e.nombre, 24), ex = 11 * (Ln.length - 1); minaTexto(o.nom, Ln, 0, -65 - ex, 11); o.caja.setAttribute('y', -78 - ex); o.caja.setAttribute('height', 32 + ex); } o.pct.textContent = f ? '✔ en el carro' : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
+    o.esc.classList.toggle('hide', !f); o.drv.classList.add('hide'); o.drv.dataset.u = e.drive || '';
     o.tt.textContent = `${e.nombre}: ${e.pct}%`; o.g.classList.toggle('sel', MINA.sel === e.L);
     if (f) fins.push({e, col: o.col});
   });
@@ -417,6 +417,7 @@ function minaModal() {
     <dl><dt>Proceso</dt><dd>${esc(p[2] || (v >= 100 ? 'Completado' : v > 0 ? 'En proceso' : 'Todavía no empieza'))}</dd>
       ${procs ? `<dt>En el equipo</dt><dd>${procs}</dd>` : ''}
       <dt>Objetivo</dt><dd>${e.pct}% del total${finM(e) ? ' · en el carro minero' : ''}</dd></dl>
+    ${e.drive ? `<div class="mDrvB"><a class="drv" target="_blank" rel="noopener" href="${esc(e.drive)}">▶ Ver video en Drive</a><button type="button" class="accC" data-u="${esc(e.drive)}">📋 Copiar enlace</button></div>` : ''}
     <div class="mAcc"><button type="button" id="mVolver">← Volver al mapa</button></div>`;
   if (box.hidden) { box.hidden = false; $('#mVolver').focus(); }
 }
@@ -429,7 +430,7 @@ document.addEventListener('click', ev => {
   if (t) { MINA.modal = {L: t.dataset.l, j: +t.dataset.j}; minaModal(); return; }
   const g = ev.target.closest('#minaV .gema, #minaV .obj'), c = ev.target.closest('#minaV .carro');
   if (g) { MINA.sel = g.dataset.l; } else if (c) { MINA.sel = '__carro'; } else return;
-  if (minaEnFS()) MINA.modal = {det: MINA.sel};
+  MINA.modal = {det: MINA.sel};   // la tarjeta del objetivo se abre en ventana (ahí está su botón de Drive)
   if (MINA.E) mina(MINA.E); minaDetalle(); if (MINA.modal) minaModal();
 });
 // pantalla completa de la mina (API Fullscreen; si no existe, p. ej. iPhone, ocupa toda la ventana con CSS)

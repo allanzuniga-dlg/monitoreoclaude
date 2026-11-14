@@ -231,7 +231,7 @@ function minaArmar(E) {
           <path d="M16 -64 Q32 -69 47 -53 L43 -50 Q31 -61 19 -59 Z" fill="#9aa3ad" stroke="#5b636b" stroke-width="1.2"/>
           <path d="M-4 -33 Q8 -40 19 -33 Q23 -29 19 -25 Q8 -21 -4 -25 Z" fill="#fbcb30" stroke="#e8b52a" stroke-width=".8" stroke-opacity=".7"/>
           <ellipse cx="18" cy="-29" rx="3.2" ry="4" fill="#fbcb30" stroke="#e8b52a" stroke-width=".8" stroke-opacity=".7"/>
-        <animateTransform attributeName="transform" type="rotate" values="-38 0 -29;42 0 -29;42 0 -29;-38 0 -29" keyTimes="0;0.42;0.55;1" dur="0.7s" repeatCount="indefinite"/></g></g>
+        <animateTransform attributeName="transform" type="rotate" values="-38 0 -29;52 0 -29;52 0 -29;-38 0 -29" keyTimes="0;0.38;0.6;1" dur="0.7s" repeatCount="indefinite"/></g></g>
       <g class="brazoQuieto" transform="rotate(-25 0 -29)"><line x1="13" y1="-18" x2="30" y2="-60" stroke="#8a5a2b" stroke-width="4" stroke-linecap="round"/>
           <path d="M16 -64 Q32 -69 47 -53 L43 -50 Q31 -61 19 -59 Z" fill="#9aa3ad" stroke="#5b636b" stroke-width="1.2"/>
           <path d="M-4 -33 Q8 -40 19 -33 Q23 -29 19 -25 Q8 -21 -4 -25 Z" fill="#fbcb30" stroke="#e8b52a" stroke-width=".8" stroke-opacity=".7"/>
@@ -352,7 +352,7 @@ function mina(E) {
   let x, y, izq = false, quieto = true, fiesta = false;
   if (act) {
     const [e, i] = act, G = MINA.gal[i], c = cavado(e);
-    const a = G.fondo.getPointAtLength(Math.max(0, G.L * c.f - 46)), b = G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 4));   // 46 = alcance del pico: golpea justo el borde del túnel
+    const a = G.fondo.getPointAtLength(Math.max(0, G.L * c.f - 42)), b = G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 4));   // 42: con el pico en el golpe (52 grados) la punta cae en la orilla visible del túnel (avance + 15 del extremo redondo), medido en la página
     x = a.x; y = a.y + 12; izq = b.x < a.x - .5; if (c.f < .02) { x = X0 + 8; y = G.y + 12; }
     quieto = !enCurso(e) && !(E.procesos && E.procesos.length);
   } else { x = 520; y = 100; fiesta = true; }
@@ -368,7 +368,7 @@ function mina(E) {
   MINA.extras.innerHTML = '';
   if (act) pend.filter(([e]) => e !== act[0] && enCurso(e) && (ahora - (MINA.cambio[e.L] || 0) < 10 * 60000 || (!e.tarea && enProc.includes(e.L)))).forEach(([e, i]) => {
     const G = MINA.gal[i], c = cavado(e); if (c.f < .02) return;
-    const a = G.fondo.getPointAtLength(Math.max(0, G.L * c.f - 46)), b = G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 4));   // 46 = alcance del pico: golpea justo el borde del túnel
+    const a = G.fondo.getPointAtLength(Math.max(0, G.L * c.f - 42)), b = G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 4));   // 42: con el pico en el golpe (52 grados) la punta cae en la orilla visible del túnel (avance + 15 del extremo redondo), medido en la página
     const g = sv('g', {class: 'pollo' + (cpu > 90 ? ' suda' : ''), transform: `translate(${a.x} ${a.y + 12})`}, MINA.extras), cl = MINA.giro.cloneNode(true);
     cl.setAttribute('transform', b.x < a.x - .5 ? 'scale(-1 1)' : ''); g.appendChild(cl); });
   if (MINA.sel) minaDetalle();

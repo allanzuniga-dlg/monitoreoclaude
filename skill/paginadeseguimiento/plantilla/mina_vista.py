@@ -11,7 +11,7 @@ CSS = r'''
 #minaV{margin-bottom:12px;padding:10px}#minaV #minaS{width:100%;height:auto;display:block;border-radius:10px;user-select:none}
 #minaV .obj,#minaV .gema,#minaV .carro,#minaV .tarea{cursor:pointer}#minaV .obj:focus,#minaV .gema:focus,#minaV .tarea:focus{outline:none}
 #minaV .obj:hover .cristales,#minaV .obj:focus .cristales{filter:brightness(1.25)}#minaV .gema:hover{filter:brightness(1.3)}
-#minaV .escoba{cursor:pointer}#minaV .escoba:hover circle,#minaV .escoba:focus circle{fill:#ffe9a8}#minaV .rn,#minaV .rp{paint-order:stroke;stroke:#1d120b;stroke-width:3px;stroke-linejoin:round}#minaV .tarea:hover .rocaF{stroke:#fff}#minaV .rocaS{transition:transform .8s ease}#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
+#minaV .escoba{cursor:pointer}.mConf{position:fixed;top:0;right:0;bottom:0;left:0;z-index:10002;display:flex;align-items:center;justify-content:center;background:#0b0d1f99;padding:16px}.mConf .mModal{width:min(340px,100%);text-align:center}.mConf .mModal p{margin:0 0 14px;color:var(--mut);font-size:14px;line-height:1.4}.mConf .bot{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}.mConf button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:9px 16px;font-size:15px;font-weight:600;cursor:pointer;min-width:120px}.mConf button.si{background:var(--a);border-color:var(--a);color:#fff}#minaV .escoba:hover circle,#minaV .escoba:focus circle{fill:#ffe9a8}#minaV .rn,#minaV .rp{paint-order:stroke;stroke:#1d120b;stroke-width:3px;stroke-linejoin:round}#minaV .tarea:hover .rocaF{stroke:#fff}#minaV .rocaS{transition:transform .8s ease}#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
 #minaV .pico{transform-box:fill-box;transform-origin:0% 100%;animation:mPico .7s ease-in-out infinite}
 #minaV .cuerpoP{animation:mBote .7s ease-in-out infinite}
 #minaV .quieto .pico{animation:none;transform:rotate(-20deg)}#minaV .quieto .cuerpoP{animation:none}
@@ -203,7 +203,7 @@ function minaArmar(E) {
     const pct = sv('text', {x: 0, y: -51, 'text-anchor': 'middle', 'font-size': 13, fill: col, 'font-weight': 800}, g);
     const tt = sv('title', {}, g);
     // escobilla: solo en el objetivo terminado; el usuario decide si lo quita del mapa (14/11)
-    const esc = sv('g', {class: 'escoba hide', role: 'button', tabindex: 0, transform: 'translate(56 -88)'}, g); esc.dataset.l = e.L;
+    const esc = sv('g', {class: 'escoba hide', role: 'button', tabindex: 0, transform: 'translate(56 0)'}, g); esc.dataset.l = e.L;   // a la derecha del círculo del 100 %
     sv('circle', {r: 13, fill: '#fff', stroke: '#2b2118', 'stroke-width': 2}, esc);
     sv('line', {x1: 6, y1: -7, x2: -1, y2: 2, stroke: '#8a5a2b', 'stroke-width': 2.6, 'stroke-linecap': 'round'}, esc);
     sv('path', {d: 'M-1 0 L3 4 L-3 10 L-9 4 Z', fill: '#e0a526', stroke: '#8a5a2b', 'stroke-width': 1.2, 'stroke-linejoin': 'round'}, esc);
@@ -466,10 +466,22 @@ document.addEventListener('click', ev => {
   const b = ev.target.closest && ev.target.closest('#minaV .escoba'); if (!b) return;
   ev.preventDefault(); ev.stopPropagation();
   const e = MINA.E && MINA.E.idiomas.find(x => x.L === b.dataset.l); if (!e) return;
-  if (!confirm(`¿Limpiar del mapa «${e.nombre}»? Ya está terminado; deja de verse en la página.`)) return;
-  fetch('limpiar', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id: e.L})})
-    .then(r => { if (!r.ok) return r.text().then(t => alert('No se pudo limpiar: ' + t)); b.classList.add('hide'); }).catch(() => alert('No se pudo limpiar: sin conexión'));
+  minaConfirmar(e.nombre, () => fetch('limpiar', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id: e.L})})
+    .then(r => { if (!r.ok) return r.text().then(t => minaAviso('No se pudo limpiar: ' + t)); b.classList.add('hide'); }).catch(() => minaAviso('No se pudo limpiar: sin conexión')));
 }, true);
+// ventana pequeña al centro, con el diseño de la página (en el celular los avisos del navegador se ven mal; 14/11).
+// En pantalla completa real va dentro del mapa, que es lo único que se ve.
+function minaVentana(html) {
+  const fs = document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement;
+  const v = document.createElement('div'); v.className = 'mConf'; v.setAttribute('role', 'dialog'); v.setAttribute('aria-modal', 'true');
+  v.innerHTML = `<div class="mModal">${html}</div>`; (fs || document.body).appendChild(v);
+  v.addEventListener('click', ev => { if (ev.target === v) v.remove(); }); return v;
+}
+function minaConfirmar(nombre, si) {
+  const v = minaVentana(`<h3>🧹 ¿Limpiar del mapa?</h3><p>«${esc(nombre)}» ya está terminado. Deja de verse en la página y el mapa se reacomoda.</p><div class="bot"><button type="button" class="no">Cancelar</button><button type="button" class="si">Limpiar</button></div>`);
+  v.querySelector('.no').onclick = () => v.remove(); v.querySelector('.si').onclick = () => { v.remove(); si(); }; v.querySelector('.si').focus();
+}
+function minaAviso(t) { const v = minaVentana(`<p>${esc(t)}</p><div class="bot"><button type="button" class="si">Entendido</button></div>`); v.querySelector('.si').onclick = () => v.remove(); }
 // al elegir la vista Mina, el mapa sube hasta arriba de la ventana y la ocupa entera
 document.addEventListener('click', ev => { if (ev.target.closest && ev.target.closest('#vistas button[data-v=mina]')) setTimeout(() => { const m = $('#minaV'); if (m) m.scrollIntoView({block: 'start'}); }, 300); });
 document.addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.closest && ev.target.closest('#minaV [role=button]')) { ev.preventDefault(); ev.target.dispatchEvent(new MouseEvent('click', {bubbles: true})); } });

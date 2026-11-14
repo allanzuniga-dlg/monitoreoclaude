@@ -40,7 +40,7 @@ Reglas:
 - **No repetir el mismo trabajo en dos tarjetas** (confunde: dos porcentajes suben a la vez y parece que se hacen dos cosas).
 - Actualizar el % de la tarea en curso a medida que avanza: el pollito va a la galería que cambió más recientemente (o a la del proceso que corre en el equipo, si `avance.py` lo reconoce).
 - **Cada archivo subido a Drive se registra con `paso.py --drive <id> <url>`**: arriba de todas las vistas (y dentro del mapa de la Mina, también en pantalla completa) aparece «▶ Ver video en Drive» con «📋 Copiar enlace». Los enlaces de las acciones pendientes también se abren y se copian.
-- **Lo terminado lo limpia el usuario**: cada objetivo al 100 % muestra en la Mina una **escobilla**; al tocarla (con confirmación) la página llama `POST /limpiar` y la tarjeta se quita (las de idioma se ocultan con `ocultas` en `checklist.json`) y el mapa se reacomoda. No quitar tarjetas terminadas por cuenta propia salvo que el usuario lo pida.
+- **Lo terminado lo limpia el usuario**: cada objetivo al 100 % muestra en la Mina una **escobilla** a la derecha del círculo del 100 %; al tocarla (confirmación en una ventana pequeña al centro con el diseño de la página, nunca `confirm`/`alert` del navegador: en el celular se ven mal) la página llama `POST /limpiar` y la tarjeta se quita (las de idioma se ocultan con `ocultas` en `checklist.json`) y el mapa se reacomoda. No quitar tarjetas terminadas por cuenta propia salvo que el usuario lo pida.
 - `--accion` solo para lo que frena el trabajo y depende del usuario (iniciar sesión, aprobar, elegir). Aparece en naranja arriba y en la Mina el pollito se da vuelta y lo dice en un globo.
 
 ## Vistas (botones arriba; se recuerda por navegador)

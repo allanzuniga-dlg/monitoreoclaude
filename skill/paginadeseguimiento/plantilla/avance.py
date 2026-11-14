@@ -134,7 +134,8 @@ def estado_idioma(L, activos, drive=None, U=None):
         pass
     ver = verificar(final, esperado) if t_fin else None
     quemando = os.path.exists(os.path.join(PP, f'.tmp_{L}.mp4'))
-    err = f'VIDEO_ERROR {L}' in log or 'RENDER_ERROR' in rl or bool(ver and not ver[1])
+    # error solo si el ÚLTIMO resultado fue un error (un reintento exitoso posterior lo borra)
+    err = log.rfind(f'VIDEO_ERROR {L}') > log.rfind(f'VIDEO_OK {L}') or 'RENDER_ERROR' in rl or bool(ver and not ver[1])
     pasos = [
         ['Marca "ABC Dust" en inglés', 100 if marca else 0, ''],
         [f'Voz: {nf} de {n} frases', 99 if corre('Voz') and nf >= n else 100 * nf // n, ('regenerando frases corregidas' if nf >= n else 'narrando') if corre('Voz') else ''],   # corrección de frases en curso
@@ -315,10 +316,12 @@ li small{grid-column:1/3;font-size:12.5px;color:var(--mut);margin-top:-2px}
 
 
 
+
+
 #minaV{margin-bottom:12px;padding:10px}#minaV #minaS{width:100%;height:auto;display:block;border-radius:10px;user-select:none}
 #minaV .obj,#minaV .gema,#minaV .carro,#minaV .tarea{cursor:pointer}#minaV .obj:focus,#minaV .gema:focus,#minaV .tarea:focus{outline:none}
 #minaV .obj:hover .cristales,#minaV .obj:focus .cristales{filter:brightness(1.25)}#minaV .gema:hover{filter:brightness(1.3)}
-#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
+#minaV .rn,#minaV .rp{paint-order:stroke;stroke:#1d120b;stroke-width:3px;stroke-linejoin:round}#minaV .tarea:hover .rocaF{stroke:#fff}#minaV .rocaS{transition:transform .8s ease}#minaV .tarea:hover rect{stroke:#fff}#minaV .sel .aro{stroke:#fff}#minaV .pollo{transition:transform 1.2s ease}
 #minaV .pico{transform-box:fill-box;transform-origin:0% 100%;animation:mPico .7s ease-in-out infinite}
 #minaV .cuerpoP{animation:mBote .7s ease-in-out infinite}
 #minaV .quieto .pico{animation:none;transform:rotate(-20deg)}#minaV .quieto .cuerpoP{animation:none}
@@ -489,6 +492,8 @@ const vaPor = e => { const cur = e.pasos.find(p => p[1] < 100), act = enCurso(e)
 
 
 
+
+
 // ---- vista «Mina»: el pollito cava tarea por tarea hacia cada objetivo; lo terminado va al carro
 const MINA = {key: '', sel: null, E: null};
 const COLG = ['#3fb6ff', '#ff5d8f', '#7ee081', '#ffb547', '#b18cff', '#4fd1c5', '#ff7a45', '#f5e663'];
@@ -496,7 +501,24 @@ const finM = e => e.ok && (e.drive || e.tarea) || e.pct >= 100;
 const corto = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
 const nomTarea = s => s.replace(/:\s.*$/, '').trim();   // «Voz: 7 de 34 frases» → «Voz»; «0:20 · …» queda igual
 const sv = (tag, at, padre) => { const el = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const k in at) el.setAttribute(k, at[k]); if (padre) padre.appendChild(el); return el; };
-const NIVEL = 170, X0 = 110, XF = 840;    // pique en X0; cada galería llega al objetivo en XF
+let NIVEL = 170; const X0 = 110, XF = 840;    // pique en X0; cada galería llega al objetivo en XF
+// la escena llena TODA la pantalla disponible (14/11: «verifica que siempre tome toda la pantalla»): el alto del mapa es el de la
+// ventana y la separación entre galerías se estira para ocupar ese alto (150–320), sin deformar ni cortar nada
+function minaCaja() {
+  const m = $('#minaMapa'); if (!m) return {w: 1000, h: 600};
+  if (minaEnFS()) { const r = m.getBoundingClientRect(), gir = m.classList.contains('girado'); return gir ? {w: r.height, h: r.width} : {w: r.width, h: r.height}; }
+  const w = Math.max(320, m.getBoundingClientRect().width || m.parentElement.clientWidth || 1000);
+  return {w, h: Math.max(340, innerHeight - 64)};
+}
+// alto de la escena: 200 (cielo + primera galería) + una separación por galería extra + 150 de tierra para los rótulos de abajo
+const minaAlto = n => 200 + (Math.max(n, 1) - 1) * NIVEL + 150;
+// separación fija entre galerías (14/11: estirarla dejaba los objetivos muy distantes y espacio sobrante arriba y abajo);
+// en pantalla completa se permite un poco más (hasta 230) para usar el alto sin separarlos de más
+function minaNivel(n) { if (n < 2 || !minaEnFS()) return 170; const c = minaCaja(), Hob = 1000 * c.h / c.w; return Math.round(Math.max(150, Math.min(230, (Hob - 350) / (n - 1)))); }
+const minaClave = E => E.idiomas.map(e => e.L + ':' + e.pasos.length).join('|') + '#' + minaNivel(Math.max(E.idiomas.length, 1));
+// los rótulos nunca se cortan ni llevan «…»: se reparten en líneas por palabras
+function minaLineas(t, n) { const L = []; let a = ''; String(t).split(/\s+/).forEach(p => { if (a && (a + ' ' + p).length > n) { L.push(a); a = p; } else a = a ? a + ' ' + p : p; }); if (a) L.push(a); return L; }
+function minaTexto(el, L, x, y0, dy) { el.textContent = ''; L.forEach((l, i) => { const t = sv('tspan', {x, y: y0 + i * dy}, el); t.textContent = l; }); }
 // excavación con lógica: completas las tareas anteriores a la que está en curso + el % de esa
 function cavado(e) {
   const P = e.pasos, k = P.length; if (!k) return {f: e.pct / 100, act: -1};
@@ -507,7 +529,7 @@ function cavado(e) {
   return {f: (act + P[act][1] / 100) / k, act};
 }
 function minaArmar(E) {
-  const s = $('#minaS'); s.innerHTML = ''; const n = E.idiomas.length, H = 200 + Math.max(n, 1) * NIVEL;
+  const s = $('#minaS'); s.innerHTML = ''; const n = E.idiomas.length; NIVEL = minaNivel(Math.max(n, 1)); const H = minaAlto(n);
   s.setAttribute('viewBox', `0 0 1000 ${H}`); MINA.H = H;
   sv('defs', {}, s).innerHTML = `<linearGradient id="mCielo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd3ff"/><stop offset="1" stop-color="#d9f1ff"/></linearGradient>
     <linearGradient id="mTierraG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a6b43"/><stop offset=".35" stop-color="#7b5233"/><stop offset="1" stop-color="#4a301e"/></linearGradient>
@@ -562,7 +584,7 @@ function minaArmar(E) {
       g.dataset.l = e.L; g.dataset.j = j;
       const cam = sv('ellipse', {cx: mid.x, cy: mid.y, rx: 16, ry: 11, fill: '#3a271a', stroke: '#1d120b', 'stroke-width': 3, class: 'hide'}, g);
       if (j < k - 1) { sv('line', {x1: fin.x, y1: fin.y - 17, x2: fin.x, y2: fin.y + 17, stroke: '#8a5a2b', 'stroke-width': 4}, g); sv('line', {x1: fin.x - 8, y1: fin.y - 17, x2: fin.x + 8, y2: fin.y - 17, stroke: '#8a5a2b', 'stroke-width': 4}, g); }
-      const ty = arriba ? mid.y - 50 : mid.y + 22, w = Math.max(64, 860 / k - 10), et = sv('g', {}, g);
+      const ty = arriba ? mid.y - 50 : mid.y + 22, w = Math.min(Math.max(64, 860 / k - 10), 2 * (XF - 14 - mid.x)), et = sv('g', {}, g);   // no se monta sobre el rótulo del objetivo
       sv('line', {x1: mid.x, y1: arriba ? ty + 30 : ty, x2: mid.x, y2: arriba ? mid.y - 14 : mid.y + 14, stroke: '#ffffff55', 'stroke-width': 1.5, 'stroke-dasharray': '2 3'}, et);
       const r = sv('rect', {x: mid.x - w / 2, y: ty, width: w, height: 30, rx: 7, fill: '#000000a0'}, et);
       const tn = sv('text', {x: mid.x, y: ty + 12, 'text-anchor': 'middle', 'font-size': 10.5, fill: '#fff'}, et);
@@ -570,7 +592,14 @@ function minaArmar(E) {
       sv('rect', {x: mid.x - w / 2 + 4, y: ty + 27, width: w - 8, height: 2, fill: '#ffffff30'}, et);
       const tb = sv('rect', {x: mid.x - w / 2 + 4, y: ty + 27, width: 0, height: 2, fill: col}, et);
       const tt = sv('title', {}, g);
-      return {g, cam, tn, tp, tb, tt, w, et, arriba};
+      // tarea sin terminar = roca en el camino que se achica con el avance (0 % entera); al 100 % se va y queda su tarjeta (14/11)
+      const ro = sv('g', {transform: `translate(${mid.x} ${mid.y})`}, g), rs = sv('g', {class: 'rocaS'}, ro);
+      sv('path', {class: 'rocaF', d: 'M-21 8 L-24 -3 L-15 -16 L-2 -21 L12 -17 L22 -6 L23 7 Z', fill: '#7d6a5c', stroke: '#3b2f27', 'stroke-width': 2.2, 'stroke-linejoin': 'round'}, rs);
+      sv('path', {d: 'M-15 -14 L-3 -18 L8 -15 L-2 -9 Z', fill: '#a08b7a', opacity: .9}, rs);
+      sv('path', {d: 'M-21 8 L23 7 L19 1 L-18 2 Z', fill: '#5b4a3e', opacity: .8}, rs);
+      const rp = sv('text', {class: 'rp', x: 0, y: 2, 'text-anchor': 'middle', 'font-size': 10.5, 'font-weight': 800, fill: '#fff'}, ro);
+      const rn = sv('text', {class: 'rn', 'text-anchor': 'middle', 'font-size': 10, 'font-weight': 600, fill: '#fff'}, g);
+      return {g, cam, tn, tp, tb, tt, w, et, arriba, r, ty, mx: mid.x, my: mid.y, ro, rs, rp, rn};
     });
     MINA.gal.push({fondo, luz, L, tareas, y});
     // objetivo al final de la galería
@@ -584,11 +613,11 @@ function minaArmar(E) {
     sv('text', {x: 0, y: 14, 'text-anchor': 'middle', 'font-size': 6.2, 'font-weight': 700, fill: '#ffffffb0'}, hueco).textContent = 'LOGRADO';
     sv('circle', {r: 36, fill: 'none', stroke: '#00000055', 'stroke-width': 7}, g);
     const aro = sv('circle', {r: 36, fill: 'none', stroke: col, 'stroke-width': 7, 'stroke-linecap': 'round', pathLength: 100, 'stroke-dasharray': '0 100', transform: 'rotate(-90)', class: 'aro'}, g);
-    sv('rect', {x: -66, y: -84, width: 132, height: 40, rx: 9, fill: '#000000b0'}, g);
+    const caja = sv('rect', {x: -66, y: -84, width: 132, height: 40, rx: 9, fill: '#000000b0'}, g);
     const nom = sv('text', {x: 0, y: -67, 'text-anchor': 'middle', 'font-size': 12.5, fill: '#fff', 'font-weight': 700}, g);
     const pct = sv('text', {x: 0, y: -51, 'text-anchor': 'middle', 'font-size': 13, fill: col, 'font-weight': 800}, g);
     const tt = sv('title', {}, g);
-    MINA.objs.push({g, cr, hueco, logrado, aro, nom, pct, tt, col});
+    MINA.objs.push({g, cr, hueco, logrado, aro, nom, pct, tt, col, caja});
   });
   const cg = sv('g', {class: 'carro', tabindex: 0, role: 'button', transform: 'translate(430 96)'}, s);
   MINA.gemas = sv('g', {}, cg);
@@ -597,6 +626,7 @@ function minaArmar(E) {
   [-30, 30].forEach(x => { sv('circle', {cx: x, cy: 0, r: 9, fill: '#1f2937'}, cg); sv('circle', {cx: x, cy: 0, r: 3, fill: '#9ca3af'}, cg); });
   MINA.carroT = sv('text', {x: 0, y: -24, 'text-anchor': 'middle', 'font-size': 13, fill: '#fff', 'font-weight': 700}, cg);
   // pollito minero (origen en las patas, mirando a la derecha); la nube y el sudor no se espejan
+  MINA.extras = sv('g', {class: 'extras'}, s);   // pollitos de las tareas que se hacen al mismo tiempo
   const po = sv('g', {class: 'pollo'}, s); MINA.pollo = po; const pv = sv('g', {}, po); MINA.giro = pv;
   pv.innerHTML = `<ellipse cx="0" cy="2" rx="20" ry="4" fill="#00000055"/><g class="lado">
     <polygon points="24,-58 95,-80 95,-34" fill="#fff3a8" opacity=".12"/>
@@ -643,7 +673,7 @@ function minaArmar(E) {
     <g class="cerebro"><path d="M-32 -110 q-2 -14 12 -16 q4 -8 14 -4 q10 -6 16 4 q12 2 10 14 q6 10 -4 16 q-2 10 -14 8 q-8 6 -16 0 q-14 2 -16 -10 q-8 -6 -2 -12 z" fill="#ff8fb1" stroke="#c2185b" stroke-width="1.8"/>
       <path d="M-22 -118 q6 4 2 10 M-8 -122 q-2 8 6 10 q6 2 4 10 M6 -114 q-6 6 0 12 M-24 -100 q8 -2 12 4 M2 -96 q4 -6 10 -2" stroke="#c2185b" stroke-width="1.5" fill="none" stroke-linecap="round"/></g>
     <text x="-2" y="-78" text-anchor="middle" font-size="9.5" font-weight="700" fill="#c2185b">RAM</text>`;
-  MINA.key = E.idiomas.map(e => e.L + ':' + e.pasos.length).join('|');
+  MINA.key = minaClave(E);
 }
 function minaGlobo(acc, x, y) {
   const g = MINA.globo; if (!g) return;
@@ -687,7 +717,7 @@ function minaMedidor(k, p, txt) {
   m.cr.setAttribute('width', 180 * Math.max(0, Math.min(100, p)) / 100); m.bar.setAttribute('fill', c); m.v.textContent = txt;
 }
 function mina(E) {
-  MINA.E = E; if (MINA.key !== E.idiomas.map(e => e.L + ':' + e.pasos.length).join('|')) minaArmar(E);
+  MINA.E = E; if (MINA.key !== minaClave(E)) minaArmar(E);
   MINA.tot.tv.textContent = E.total + '%'; MINA.tot.cr.setAttribute('width', 148 * Math.max(0, Math.min(100, E.total)) / 100);
   const S = E.sis || {}, cpu = S.total || 0, ram = S.mem ? 100 * S.mem[0] / S.mem[1] : 0;
   minaMedidor('cpu', cpu, cpu.toFixed(0) + '%'); minaMedidor('ram', ram, ram.toFixed(0) + '%');
@@ -696,14 +726,22 @@ function mina(E) {
     const o = MINA.objs[i], G = MINA.gal[i], f = finM(e), c = cavado(e), largo = Math.round(1000 * c.f);
     G.fondo.setAttribute('stroke-dasharray', `${largo} 1000`); G.luz.setAttribute('stroke-dasharray', `${largo} 1000`);
     e.pasos.forEach((p, j) => { const T = G.tareas[j]; if (!T) return; const v = f ? 100 : p[1];
-      T.tn.textContent = corto(nomTarea(p[0]), Math.max(8, Math.floor(T.w / 6.2)));
+      const Ln = minaLineas(nomTarea(p[0]), Math.max(8, Math.floor((T.w - 8) / 5.6))), ex = 12 * (Ln.length - 1), y0 = T.arriba ? T.ty - ex : T.ty;
+      minaTexto(T.tn, Ln, T.mx, y0 + 12, 12); T.ex = ex; T.r.setAttribute('y', y0); T.r.setAttribute('height', 30 + ex);
+      T.tp.setAttribute('y', y0 + 25 + ex); T.tb.setAttribute('y', y0 + 27 + ex); T.tb.previousElementSibling.setAttribute('y', y0 + 27 + ex);
       T.tp.textContent = (v >= 100 ? '✔ ' : j === c.act ? '⛏ ' : '') + v + '%';
       T.tb.setAttribute('width', (T.w - 8) * v / 100);
       T.cam.classList.toggle('hide', !(v >= 100 && c.act >= 0 && j > c.act));   // terminada fuera de orden: cámara ya excavada
-      T.g.classList.toggle('ahora', j === c.act); T.et.setAttribute('transform', j === c.act && T.arriba ? 'translate(0 72)' : '');   // el rótulo de la tarea en curso va debajo: arriba está el pollito
-      T.tt.textContent = `${p[0]}: ${v}%${p[2] ? ' · ' + p[2] : ''}`; });
+      T.g.classList.toggle('ahora', j === c.act); T.et.setAttribute('transform', j === c.act && T.arriba ? `translate(0 ${72 + (T.ex || 0)})` : '');   // el rótulo de la tarea en curso va debajo: arriba está el pollito
+      T.tt.textContent = `${p[0]}: ${v}%${p[2] ? ' · ' + p[2] : ''}`;
+      const roca = v < 100; T.et.style.display = roca ? 'none' : ''; T.ro.style.display = T.rn.style.display = roca ? '' : 'none';
+      // la roca de la tarea en curso va justo delante del pollito, para que no la tape
+      { const q = j === c.act ? G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 30)) : {x: T.mx, y: T.my}; T.ro.setAttribute('transform', `translate(${q.x} ${q.y})`); }
+      if (roca) { T.rs.setAttribute('transform', `scale(${(1 - .7 * v / 100).toFixed(3)})`); T.rp.textContent = v + '%';
+        const Lr = minaLineas(nomTarea(p[0]), Math.max(8, Math.floor((T.w - 4) / 5.4))), ar = T.arriba && !(j === c.act);
+        minaTexto(T.rn, Lr, T.mx, ar ? T.my - 28 - 11 * (Lr.length - 1) : T.my + 34, 11); } });
     o.aro.setAttribute('stroke-dasharray', `${f ? 100 : e.pct} 100`); o.cr.classList.toggle('hide', f); o.hueco.classList.toggle('hide', !f);
-    o.nom.textContent = corto(e.nombre, 20); o.pct.textContent = f ? '✔ en el carro' : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
+    { const Ln = minaLineas(e.nombre, 20), ex = 14 * (Ln.length - 1); minaTexto(o.nom, Ln, 0, -67 - ex, 14); o.caja.setAttribute('y', -84 - ex); o.caja.setAttribute('height', 40 + ex); } o.pct.textContent = f ? '✔ en el carro' : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
     o.tt.textContent = `${e.nombre}: ${e.pct}%`; o.g.classList.toggle('sel', MINA.sel === e.L);
     if (f) fins.push({e, col: o.col});
   });
@@ -738,9 +776,17 @@ function mina(E) {
   MINA.pollo.style.transform = `translate(${x}px, ${y}px)`; MINA.giro.setAttribute('transform', izq && !hay ? 'scale(-1 1)' : '');
   MINA.pollo.classList.toggle('quieto', quieto || fiesta || hay); MINA.pollo.classList.toggle('fiesta', fiesta && !hay);
   MINA.pollo.classList.toggle('suda', cpu > 90); MINA.pollo.classList.toggle('piensa', ram > 90);
+  // varias tareas a la vez (otras galerías con avance en los últimos 10 min, o procesos de otros idiomas): un pollito igual
+  // trabajando en cada una; si se trabaja en una sola, no aparece ninguno extra
+  MINA.extras.innerHTML = '';
+  if (act) pend.filter(([e]) => e !== act[0] && enCurso(e) && (ahora - (MINA.cambio[e.L] || 0) < 10 * 60000 || (!e.tarea && enProc.includes(e.L)))).forEach(([e, i]) => {
+    const G = MINA.gal[i], c = cavado(e); if (c.f < .02) return;
+    const a = G.fondo.getPointAtLength(Math.max(0, G.L * c.f - 14)), b = G.fondo.getPointAtLength(Math.min(G.L, G.L * c.f + 4));
+    const g = sv('g', {class: 'pollo' + (cpu > 90 ? ' suda' : ''), transform: `translate(${a.x} ${a.y + 12})`}, MINA.extras), cl = MINA.giro.cloneNode(true);
+    cl.setAttribute('transform', b.x < a.x - .5 ? 'scale(-1 1)' : ''); g.appendChild(cl); });
   if (MINA.sel) minaDetalle();
   if (MINA.modal) minaModal();
-  if (minaEnFS()) minaEncuadre();
+  minaEncuadre();
 }
 function minaModal() {
   const m = MINA.modal, box = $('#minaModal'); if (!m || !MINA.E) { box.hidden = true; return; }
@@ -797,7 +843,12 @@ const minaEnFS = () => !!(document.fullscreenElement || document.webkitFullscree
 // el mapa entra entero y el cielo / la tierra se extienden hasta los bordes: llena la pantalla sin deformarse ni cortarse
 function minaEncuadre() {
   const s = $('#minaS'); if (!s || !MINA.H) return; const H = MINA.H;
-  if (!minaEnFS()) { $('#minaMapa').classList.remove('girado'); s.setAttribute('viewBox', `0 0 1000 ${H}`); return; }
+  if (!minaEnFS()) { $('#minaMapa').classList.remove('girado'); s.style.height = '';
+    // el mapa mide lo que ocupa su contenido (sin cielo ni tierra de más); si no cabe en la ventana se achica y se ve entero
+    const c = minaCaja(), h0 = Math.min(c.w * H / 1000, c.h); s.style.height = h0 + 'px'; const a = c.w / h0;
+    if (a >= 1000 / H) { const w = H * a; s.setAttribute('viewBox', `${(1000 - w) / 2} 0 ${w} ${H}`); } else { const h = 1000 / a; s.setAttribute('viewBox', `0 ${(H - h) / 2} 1000 ${h}`); }
+    return; }
+  s.style.height = '';
   // celular en vertical: el mapa se gira 90° para usar toda la pantalla (se intenta además bloquear la orientación horizontal)
   const m = $('#minaMapa'), gir = minaTelefono() && innerHeight > innerWidth; m.classList.toggle('girado', gir);
   const r = m.getBoundingClientRect(), a = gir ? r.height / Math.max(1, r.width) : r.width / Math.max(1, r.height);
@@ -810,12 +861,14 @@ function minaBotonFS() {
   document.body.style.overflow = $('#minaMapa').classList.contains('fsPseudo') ? 'hidden' : '';
   requestAnimationFrame(minaEncuadre);
 }
-addEventListener('resize', () => { if (minaEnFS()) minaEncuadre(); });
+addEventListener('resize', () => { if (MINA.E && MINA.key !== minaClave(MINA.E)) mina(MINA.E); else minaEncuadre(); });
 // Safari (iPad) informa el tamaño nuevo tarde al girar: se reencuadra varias veces
 addEventListener('orientationchange', () => [100, 350, 700, 1200].forEach(t => setTimeout(() => { if (minaEnFS()) minaEncuadre(); }, t)));
 ['fullscreenchange', 'webkitfullscreenchange'].forEach(t => document.addEventListener(t, () => [100, 400].forEach(d => setTimeout(minaEncuadre, d))));
 ['fullscreenchange', 'webkitfullscreenchange'].forEach(t => document.addEventListener(t, minaBotonFS));
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape') { if (!$('#minaModal').hidden) minaCerrar(); else if ($('#minaMapa').classList.contains('fsPseudo')) { $('#minaMapa').classList.remove('fsPseudo'); minaBotonFS(); } } });
+// al elegir la vista Mina, el mapa sube hasta arriba de la ventana y la ocupa entera
+document.addEventListener('click', ev => { if (ev.target.closest && ev.target.closest('#vistas button[data-v=mina]')) setTimeout(() => { const m = $('#minaV'); if (m) m.scrollIntoView({block: 'start'}); }, 300); });
 document.addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.closest && ev.target.closest('#minaV [role=button]')) { ev.preventDefault(); ev.target.dispatchEvent(new MouseEvent('click', {bubbles: true})); } });
 
 function organizar(E) {

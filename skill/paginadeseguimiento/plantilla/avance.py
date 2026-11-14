@@ -312,6 +312,7 @@ li small{grid-column:1/3;font-size:12.5px;color:var(--mut);margin-top:-2px}
 
 
 
+
 #minaV{margin-bottom:12px;padding:10px}#minaV #minaS{width:100%;height:auto;display:block;border-radius:10px;user-select:none}
 #minaV .obj,#minaV .gema,#minaV .carro,#minaV .tarea{cursor:pointer}#minaV .obj:focus,#minaV .gema:focus,#minaV .tarea:focus{outline:none}
 #minaV .obj:hover .cristales,#minaV .obj:focus .cristales{filter:brightness(1.25)}#minaV .gema:hover{filter:brightness(1.3)}
@@ -483,6 +484,7 @@ const vaPor = e => { const cur = e.pasos.find(p => p[1] < 100), act = enCurso(e)
 
 
 
+
 // ---- vista «Mina»: el pollito cava tarea por tarea hacia cada objetivo; lo terminado va al carro
 const MINA = {key: '', sel: null, E: null};
 const COLG = ['#3fb6ff', '#ff5d8f', '#7ee081', '#ffb547', '#b18cff', '#4fd1c5', '#ff7a45', '#f5e663'];
@@ -572,14 +574,17 @@ function minaArmar(E) {
     sv('circle', {r: 44, fill: 'url(#mLuz)', class: 'brillo'}, g);
     const cr = sv('g', {class: 'cristales'}, g);
     [[-14, 8, 16, 34], [4, 10, 20, 44], [20, 8, 14, 28]].forEach(([x, yy, w, h]) => sv('path', {d: `M${x} ${yy} L${x - w / 2} ${yy - h * .65} L${x} ${yy - h} L${x + w / 2} ${yy - h * .65} Z`, fill: col, stroke: '#ffffffaa', 'stroke-width': 1.5}, cr));
-    const hueco = sv('circle', {r: 26, fill: '#1d120b', stroke: '#ffffff88', 'stroke-width': 2, 'stroke-dasharray': '5 5', class: 'hide'}, g);
+    const hueco = sv('g', {class: 'hide'}, g);   // objetivo alcanzado: el porcentaje logrado en el lugar de los cristales
+    sv('circle', {r: 28, fill: '#1d120b', stroke: col, 'stroke-width': 2}, hueco);
+    const logrado = sv('text', {x: 0, y: 2, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 800, fill: col}, hueco);
+    sv('text', {x: 0, y: 16, 'text-anchor': 'middle', 'font-size': 8.5, 'font-weight': 700, fill: '#ffffffb0', 'letter-spacing': '.05em'}, hueco).textContent = 'LOGRADO';
     sv('circle', {r: 36, fill: 'none', stroke: '#00000055', 'stroke-width': 7}, g);
     const aro = sv('circle', {r: 36, fill: 'none', stroke: col, 'stroke-width': 7, 'stroke-linecap': 'round', pathLength: 100, 'stroke-dasharray': '0 100', transform: 'rotate(-90)', class: 'aro'}, g);
     sv('rect', {x: -66, y: -84, width: 132, height: 40, rx: 9, fill: '#000000b0'}, g);
     const nom = sv('text', {x: 0, y: -67, 'text-anchor': 'middle', 'font-size': 12.5, fill: '#fff', 'font-weight': 700}, g);
     const pct = sv('text', {x: 0, y: -51, 'text-anchor': 'middle', 'font-size': 13, fill: col, 'font-weight': 800}, g);
     const tt = sv('title', {}, g);
-    MINA.objs.push({g, cr, hueco, aro, nom, pct, tt, col});
+    MINA.objs.push({g, cr, hueco, logrado, aro, nom, pct, tt, col});
   });
   const cg = sv('g', {class: 'carro', tabindex: 0, role: 'button', transform: 'translate(430 96)'}, s);
   MINA.gemas = sv('g', {}, cg);
@@ -636,9 +641,9 @@ function minaArmar(E) {
     <text x="-2" y="-78" text-anchor="middle" font-size="9.5" font-weight="700" fill="#c2185b">RAM</text>`;
   MINA.key = E.idiomas.map(e => e.L + ':' + e.pasos.length).join('|');
 }
-function minaGlobo(acc, x) {
+function minaGlobo(acc, x, y) {
   const g = MINA.globo; if (!g) return;
-  const clave = acc ? JSON.stringify(acc.map(a => a[1])) + '|' + Math.round(x / 40) : '';
+  const clave = acc ? JSON.stringify(acc.map(a => a[1])) + '|' + Math.round(x / 40) + '|' + Math.round(y / 40) : '';
   if (clave === MINA.globoK) return; MINA.globoK = clave; g.innerHTML = '';
   if (!acc) return;
   const txt = acc.map(a => (acc.length > 1 ? '• ' : '') + a[1]).join(' ');
@@ -646,11 +651,19 @@ function minaGlobo(acc, x) {
   txt.split(' ').forEach(w => { if ((l + ' ' + w).trim().length > 30) { lin.push(l.trim()); l = w; } else l += ' ' + w; }); if (l.trim()) lin.push(l.trim());
   const L = lin.slice(0, 6); if (lin.length > 6) L[5] = L[5].replace(/.{0,2}$/, '…'); L.push('(toque para ver cómo)');
   const w = Math.max(...L.map(t => t.length)) * 7.2 + 26, h = L.length * 17 + 20, base = -84;
-  const bx = Math.max(8 - x, Math.min(992 - x - w, -w / 2));   // que no se salga del mapa
-  sv('rect', {x: bx, y: base - h, width: w, height: h, rx: 12, fill: '#fff', stroke: '#2b2118', 'stroke-width': 2}, g);
-  sv('path', {d: `M${Math.max(bx + 14, -10)} ${base - 1} L0 -68 L${Math.min(bx + w - 14, 10)} ${base - 1} Z`, fill: '#fff', stroke: '#2b2118', 'stroke-width': 2, 'stroke-linejoin': 'round'}, g);
-  sv('rect', {x: Math.max(bx + 12, -12), y: base - 4, width: 26, height: 5, fill: '#fff'}, g);
-  L.forEach((t, i) => sv('text', {x: bx + 13, y: base - h + 22 + i * 17, 'font-size': i === L.length - 1 ? 11 : 13, 'font-weight': i === 0 ? 800 : 500, fill: i === 0 ? '#c65f00' : i === L.length - 1 ? '#7a6a55' : '#2b2118'}, g).textContent = t);
+  // arriba de la cabeza; si ahí taparía los paneles del cielo (CPU/RAM, avance total), va al costado del pollito
+  const arriba = y + base - h > 120, lado = x + 40 + w < 992 ? 1 : -1;
+  const bx = arriba ? Math.max(8 - x, Math.min(992 - x - w, -w / 2)) : (lado > 0 ? 40 : -40 - w), by = arriba ? base - h : Math.max(122 - y, -60 - h / 2);
+  sv('rect', {x: bx, y: by, width: w, height: h, rx: 12, fill: '#fff', stroke: '#2b2118', 'stroke-width': 2}, g);
+  if (arriba) {
+    sv('path', {d: `M${Math.max(bx + 14, -10)} ${base - 1} L0 -68 L${Math.min(bx + w - 14, 10)} ${base - 1} Z`, fill: '#fff', stroke: '#2b2118', 'stroke-width': 2, 'stroke-linejoin': 'round'}, g);
+    sv('rect', {x: Math.max(bx + 12, -12), y: base - 4, width: 26, height: 5, fill: '#fff'}, g);
+  } else {
+    const ex = lado > 0 ? bx + 1 : bx + w - 1, ty = Math.min(Math.max(-52, by + 12), by + h - 22);
+    sv('path', {d: `M${ex} ${ty} L${lado * 18} -50 L${ex} ${ty + 14} Z`, fill: '#fff', stroke: '#2b2118', 'stroke-width': 2, 'stroke-linejoin': 'round'}, g);
+    sv('rect', {x: ex - 3, y: ty + 1, width: 6, height: 12, fill: '#fff'}, g);
+  }
+  L.forEach((t, i) => sv('text', {x: bx + 13, y: by + 22 + i * 17, 'font-size': i === L.length - 1 ? 11 : 13, 'font-weight': i === 0 ? 800 : 500, fill: i === 0 ? '#c65f00' : i === L.length - 1 ? '#7a6a55' : '#2b2118'}, g).textContent = t);
   sv('title', {}, g).textContent = acc.map(a => a[1] + (a[2] ? ' — ' + a[2] : '')).join('\n');
 }
 function minaDetalle() {
@@ -686,7 +699,7 @@ function mina(E) {
       T.g.classList.toggle('ahora', j === c.act); T.et.setAttribute('transform', j === c.act && T.arriba ? 'translate(0 72)' : '');   // el rótulo de la tarea en curso va debajo: arriba está el pollito
       T.tt.textContent = `${p[0]}: ${v}%${p[2] ? ' · ' + p[2] : ''}`; });
     o.aro.setAttribute('stroke-dasharray', `${f ? 100 : e.pct} 100`); o.cr.classList.toggle('hide', f); o.hueco.classList.toggle('hide', !f);
-    o.nom.textContent = corto(e.nombre, 20); o.pct.textContent = f ? '✔ en el carro' : `${e.pct}%`;
+    o.nom.textContent = corto(e.nombre, 20); o.pct.textContent = f ? `✔ ${e.pct}% · en el carro` : `${e.pct}%`; o.logrado.textContent = e.pct + '%';
     o.tt.textContent = `${e.nombre}: ${e.pct}%`; o.g.classList.toggle('sel', MINA.sel === e.L);
     if (f) fins.push({e, col: o.col});
   });
@@ -717,7 +730,7 @@ function mina(E) {
   // ¿hay algo que debe hacer el usuario? el pollito se da vuelta, lo mira de frente y se lo dice en un globo
   const acc = (E.checklist && E.checklist.acciones) || [], hay = acc.length > 0;
   MINA.pollo.classList.toggle('atiende', hay);
-  minaGlobo(hay ? acc : null, x);
+  minaGlobo(hay ? acc : null, x, y);
   MINA.pollo.style.transform = `translate(${x}px, ${y}px)`; MINA.giro.setAttribute('transform', izq && !hay ? 'scale(-1 1)' : '');
   MINA.pollo.classList.toggle('quieto', quieto || fiesta || hay); MINA.pollo.classList.toggle('fiesta', fiesta && !hay);
   MINA.pollo.classList.toggle('suda', cpu > 90); MINA.pollo.classList.toggle('piensa', ram > 90);

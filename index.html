@@ -90,12 +90,13 @@ async function responde(u) {
   catch (e) { return false; } finally { clearTimeout(t); }
 }
 
+// location.hash: la clave del Estudio va tras «#» (no viaja a GitHub ni queda en el repositorio) y se pasa a la página en vivo
 function mostrar(ok) {
   cargando.style.display = 'none';
   if (ok === conectado) return;
   conectado = ok;
   if (ok && IOS) { location.replace(url + '/' + location.hash); return; }
-  if (ok) { vivo.src = url + '/?v=' + Date.now() + location.hash;   // la clave del Estudio va tras «#»: no viaja a GitHub ni queda en el repositorio vivo.style.display = 'block'; sin.style.display = 'none'; document.title = 'Avance · Claude'; }
+  if (ok) { vivo.src = url + '/?v=' + Date.now() + location.hash; vivo.style.display = 'block'; sin.style.display = 'none'; document.title = 'Avance · Claude'; }
   else { vivo.style.display = 'none'; sin.style.display = 'flex'; document.title = 'Sin Conexión · Avance'; }
 }
 

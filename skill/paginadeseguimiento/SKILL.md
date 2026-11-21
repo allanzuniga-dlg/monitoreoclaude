@@ -7,9 +7,9 @@ description: Página de seguimiento EN VIVO para cualquier proyecto o tarea de v
 
 Página web en vivo del avance de un trabajo, servida desde esta computadora (`avance.py`, puerto 8765) y publicada en internet con un túnel de Cloudflare. El usuario entra siempre por el **enlace fijo**:
 
-**https://allanzuniga-dlg.github.io/monitoreoclaude/**
+**https://allanzuniga-dlg.github.io/monitorinterno/**
 
-La portada fija (repo público `allanzuniga-dlg/monitoreoclaude`, GitHub Pages) muestra la página del túnel en vivo; si no responde, un pollito durmiendo con «Sin Conexión». En iPad / iPhone abre la página del túnel directamente (en Safari un marco no se desplaza).
+La portada fija (repo público `allanzuniga-dlg/monitorinterno`, GitHub Pages) muestra la página del túnel en vivo; si no responde, un pollito durmiendo con «Sin Conexión». En iPad / iPhone abre la página del túnel directamente (en Safari un marco no se desplaza).
 
 ## Empezar
 
@@ -64,8 +64,13 @@ Reglas:
 ## Seguridad
 
 - El token de GitHub se **lee** de `~/Escritorio/Credenciales/Tokengit.txt` cada vez (o `GITHUB_TOKEN_FILE`); **nunca** se escribe en el repo, en la configuración de git ni en los logs. Antes de cada commit al repo: `grep -rIlE "ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{40,}"` debe dar vacío.
-- El repo `monitoreoclaude` es público: no poner datos del cliente, correos, tokens ni rutas privadas en la página ni en `tunel.json`.
+- El repo `monitorinterno` es público: no poner datos del cliente, correos, tokens ni rutas privadas en la página ni en `tunel.json`.
 
 ## Compatibilidad
 
 Ver `referencias/compatibilidad.md` (Safari 12 del iPad mini 2 del usuario: sin `inset`, sin `?.`/`??`, iframes que no se desplazan, reencuadre al girar).
+
+## Seguridad y nombre neutro (21/11/2026)
+- El repositorio público se llama **`monitorinterno`** (antes «monitoreoclaude»): ni la portada ni la página nombran a Claude (título «Avance»).
+- La portada pasa el `#fragmento` de la URL a la página en vivo y comprueba `/estado` con permiso CORS (`Access-Control-Allow-Origin: *` solo en esa ruta).
+- Durante la producción de videos el enlace fijo muestra el **Estudio** de `videos_abcdust` (login por correo, cifrado de punto a punto); al terminar vuelve la página de avance.

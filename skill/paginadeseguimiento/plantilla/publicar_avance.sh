@@ -14,5 +14,5 @@ sleep 1
 nohup "$HOME/.local/bin/cloudflared" tunnel --no-autoupdate --url http://127.0.0.1:$AVANCE_PORT > tunel.log 2>&1 & echo $! > .tunel.pid
 for i in $(seq 30); do U=$(grep -oE "https://[a-z0-9-]+\.trycloudflare\.com" tunel.log | head -1); [ -n "$U" ] && break; sleep 1; done
 echo "${U:-ERROR: sin URL, ver tunel.log}"; echo "$U" > avance_url.txt
-# portada fija en GitHub Pages (https://allanzuniga-dlg.github.io/monitoreoclaude/): solo se publica la dirección del túnel
+# portada fija en GitHub Pages (https://allanzuniga-dlg.github.io/monitorinterno/): solo se publica la dirección del túnel
 [ -n "$U" ] && M="$P/monitoreo/publicar_tunel.sh" && [ -x "$M" ] && "$M" "$U"

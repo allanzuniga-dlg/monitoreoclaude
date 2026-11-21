@@ -1,5 +1,5 @@
 # «Sin Conexión» dentro de la página de avance (14/11/2026): si se pierde la conexión con la computadora de trabajo
-# por más de 12 s, aparece el pollito durmiendo; mientras tanto se consulta en GitHub (tunel.json de monitoreoclaude)
+# por más de 12 s, aparece el pollito durmiendo; mientras tanto se consulta en GitHub (tunel.json de monitorinterno)
 # si el túnel cambió de dirección y, si la nueva responde, se salta a ella sola. Se inserta en avance.py con aplicar().
 # Es necesario porque en iPad / iPhone la portada fija de GitHub abre esta página directamente (sin marco).
 
@@ -26,7 +26,7 @@ HTML = r'''<div id="sinCx" role="status" aria-live="polite"><svg viewBox="0 0 26
 JS = r'''
 // ---- «Sin Conexión»: pollito durmiendo si se corta la conexión más de 12 s; busca el túnel nuevo en GitHub
 const SINCX = {desde: 0, t: null, buscando: false};
-const TUNEL_GH = 'https://raw.githubusercontent.com/allanzuniga-dlg/monitoreoclaude/main/tunel.json';
+const TUNEL_GH = 'https://raw.githubusercontent.com/allanzuniga-dlg/monitorinterno/main/tunel.json';
 function conexion(on) {
   if (on) { SINCX.desde = 0; clearTimeout(SINCX.t); SINCX.t = null; $('#sinCx').classList.remove('on'); return; }
   if (!SINCX.desde) SINCX.desde = Date.now();

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Avance · Claude</title>
+<title>Avance</title>
 <meta name="robots" content="noindex">
 <style>
   :root { --fondo: #f6f7f9; --texto: #1d2733; --suave: #6b7785; --amarillo: #ffd23f; --naranja: #f59e0b; }
@@ -77,7 +77,7 @@ const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform 
 
 async function leerTunel() {
   const fuentes = ['tunel.json?t=' + Date.now(),
-    'https://raw.githubusercontent.com/allanzuniga-dlg/monitoreoclaude/main/tunel.json?t=' + Date.now()];
+    'https://raw.githubusercontent.com/allanzuniga-dlg/monitorinterno/main/tunel.json?t=' + Date.now()];
   const leidos = await Promise.all(fuentes.map(f => fetch(f, { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null)));
   const mejor = leidos.filter(x => x && x.url).sort((a, b) => (b.actualizado || 0) - (a.actualizado || 0))[0];
   return mejor ? mejor.url.replace(/\/+$/, '') : '';
@@ -90,12 +90,13 @@ async function responde(u) {
   catch (e) { return false; } finally { clearTimeout(t); }
 }
 
+// location.hash: la clave del Estudio va tras «#» (no viaja a GitHub ni queda en el repositorio) y se pasa a la página en vivo
 function mostrar(ok) {
   cargando.style.display = 'none';
   if (ok === conectado) return;
   conectado = ok;
-  if (ok && IOS) { location.replace(url + '/'); return; }
-  if (ok) { vivo.src = url + '/?v=' + Date.now(); vivo.style.display = 'block'; sin.style.display = 'none'; document.title = 'Avance · Claude'; }
+  if (ok && IOS) { location.replace(url + '/' + location.hash); return; }
+  if (ok) { vivo.src = url + '/?v=' + Date.now() + location.hash; vivo.style.display = 'block'; sin.style.display = 'none'; document.title = 'Avance'; }
   else { vivo.style.display = 'none'; sin.style.display = 'flex'; document.title = 'Sin Conexión · Avance'; }
 }
 

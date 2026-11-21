@@ -1020,7 +1020,7 @@ function pintar(E) {
 
 // ---- «Sin Conexión»: pollito durmiendo si se corta la conexión más de 12 s; busca el túnel nuevo en GitHub
 const SINCX = {desde: 0, t: null, buscando: false};
-const TUNEL_GH = 'https://raw.githubusercontent.com/allanzuniga-dlg/monitoreoclaude/main/tunel.json';
+const TUNEL_GH = 'https://raw.githubusercontent.com/allanzuniga-dlg/monitorinterno/main/tunel.json';
 function conexion(on) {
   if (on) { SINCX.desde = 0; clearTimeout(SINCX.t); SINCX.t = null; $('#sinCx').classList.remove('on'); return; }
   if (!SINCX.desde) SINCX.desde = Date.now();

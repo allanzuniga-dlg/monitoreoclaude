@@ -12,4 +12,4 @@ python3 -I paso.py --trabajo "$T"
 # una sola página en vivo a la vez: el enlace fijo muestra el proyecto que está publicado ahora
 fuser -k ${AVANCE_PORT:-8765}/tcp 2>/dev/null || true
 ./publicar_avance.sh
-echo "Enlace fijo: https://allanzuniga-dlg.github.io/monitoreoclaude/"
+echo "Enlace fijo: https://allanzuniga-dlg.github.io/monitorinterno/"
